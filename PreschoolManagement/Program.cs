@@ -21,6 +21,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddDefaultUI();
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages(); // <-- BẮT BUỘC cho Identity UI (Razor Pages)
 
 var app = builder.Build();
 

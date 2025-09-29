@@ -1,0 +1,45 @@
+﻿@model IEnumerable<PreschoolManagement.Models.Announcement>
+@{
+    ViewData["Title"] = "Thông báo";
+    string q = ViewBag.Q as string ?? "";
+    string audience = ViewBag.Audience as string ?? "";
+}
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2">
+            <div class="col-md-6"><input name="q" value="@q" class="form-control" placeholder="Tìm tiêu đề/nội dung..." /></div>
+            <div class="col-md-3">
+                <select name="audience" class="form-select">
+                    <option value="">-- Tất cả --</option>
+                    <option value="Parents" selected="@(audience == "Parents")">Parents</option>
+                    <option value="Teachers" selected="@(audience == "Teachers")">Teachers</option>
+                    <option value="All" selected="@(audience == "All")">All</option>
+                </select>
+            </div>
+            <div class="col-md-3"><button class="btn btn-primary w-100">Lọc</button></div>
+        </form>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Không có thông báo.</div>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var a in Model)
+        {
+            <a class="list-group-item list-group-item-action" asp-controller="Announcements" asp-action="Details" asp-route-id="@a.Id">
+                <div class="d-flex justify-content-between">
+                    <strong class="text-truncate">@a.Title</strong>
+                    <small class="text-muted">@a.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                </div>
+                <div class="small text-muted">Đối tượng: @a.Audience</div>
+                <div class="text-secondary text-truncate">
+                    @((a.Content?.Length ?? 0) > 120 ? a.Content!.Substring(0, 120) + "..." : a.Content)
+                </div>
+            </a>
+        }
+    </div>
+}

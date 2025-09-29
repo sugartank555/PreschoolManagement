@@ -1,8 +1,45 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using PreschoolManagement.Models
+@{
+    var latest = ViewBag.LatestAnnouncements as IEnumerable<Announcement> ?? Enumerable.Empty<Announcement>();
+    ViewData["Title"] = "Trang chính";
 }
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="p-4 bg-light rounded border mb-3">
+            <h4>Chào mừng tới Cổng thông tin</h4>
+            <p>Xem thông báo, thời khóa biểu, thông tin con em và hóa đơn học phí.</p>
+        </div>
+        <div class="card">
+            <div class="card-header">Thông báo mới</div>
+            <div class="card-body p-0">
+                @if (!latest.Any())
+                {
+                    <div class="p-3 text-muted">Chưa có thông báo.</div>
+                }
+                else
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var a in latest)
+                        {
+                            <a class="list-group-item list-group-item-action" asp-controller="Announcements" asp-action="Details" asp-route-id="@a.Id">
+                                <div class="d-flex justify-content-between">
+                                    <strong class="text-truncate">@a.Title</strong>
+                                    <small class="text-muted">@a.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                                <div class="small text-muted">Đối tượng: @a.Audience</div>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="list-group">
+            <a class="list-group-item list-group-item-action" asp-controller="MyChildren" asp-action="Index">Con em</a>
+            <a class="list-group-item list-group-item-action" asp-controller="Invoices" asp-action="Index">Hóa đơn</a>
+            <a class="list-group-item list-group-item-action" asp-controller="Schedules" asp-action="Index">Thời khóa biểu</a>
+            <a class="list-group-item list-group-item-action" asp-controller="Announcements" asp-action="Index">Thông báo</a>
+        </div>
+    </div>
 </div>

@@ -1,32 +1,27 @@
-using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PreschoolManagement.Models;
+using Microsoft.EntityFrameworkCore;
+using PreschoolManagement.Data;
 
 namespace PreschoolManagement.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDbContext _db;
+        public HomeController(ApplicationDbContext db) => _db = db;
 
-        public HomeController(ILogger<HomeController> logger)
+        public async Task<IActionResult> Index()
         {
-            _logger = logger;
-        }
+            var latest = await _db.Announcements
+                .AsNoTracking()
+                .OrderByDescending(a => a.PublishedAt)
+                .Take(5)
+                .ToListAsync();
 
-        public IActionResult Index()
-        {
+            ViewBag.LatestAnnouncements = latest;
+            ViewData["Title"] = "Trang chính";
             return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

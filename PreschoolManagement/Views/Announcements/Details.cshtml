@@ -1,0 +1,15 @@
+﻿@model PreschoolManagement.Models.Announcement
+@{
+    ViewData["Title"] = "Chi tiết thông báo";
+}
+<div class="card">
+    <div class="card-body">
+        <h4 class="mb-1">@Model.Title</h4>
+        <div class="text-muted mb-3">
+            @Model.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+            <span class="badge bg-secondary ms-2">@Model.Audience</span>
+        </div>
+        <article class="mb-3">@Html.Raw(Html.Encode(Model.Content).Replace("\n", "<br/>"))</article>
+        <a class="btn btn-outline-secondary" asp-action="Index">Quay lại</a>
+    </div>
+</div>

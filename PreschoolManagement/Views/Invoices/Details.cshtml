@@ -1,0 +1,38 @@
+﻿@model PreschoolManagement.Models.FeeInvoice
+@{
+    ViewData["Title"] = "Chi tiết hóa đơn";
+}
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Học sinh</dt>
+            <dd class="col-sm-9">@Model.Student?.FullName</dd>
+            <dt class="col-sm-3">Lớp</dt>
+            <dd class="col-sm-9">@Model.Student?.ClassRoom?.Name</dd>
+            <dt class="col-sm-3">Tháng</dt>
+            <dd class="col-sm-9">@Model.Month.ToLocalTime().ToString("MM/yyyy")</dd>
+            <dt class="col-sm-3">Số tiền</dt>
+            <dd class="col-sm-9">@Model.Amount.ToString("n0")</dd>
+            <dt class="col-sm-3">Đã trả</dt>
+            <dd class="col-sm-9">@Model.Paid.ToString("n0")</dd>
+            <dt class="col-sm-3">Trạng thái</dt>
+            <dd class="col-sm-9">
+                @if (Model.Status == "Paid")
+                {
+                    <span class="badge bg-success">Paid</span>
+                }
+                else if (Model.Status == "Overdue")
+                {
+
+                    <span class="badge bg-danger">Overdue</span>
+                }
+                else
+                {
+
+                    <span class="badge bg-secondary">Pending</span>
+                }
+            </dd>
+        </dl>
+        <a class="btn btn-outline-secondary" asp-action="Index">Quay lại</a>
+    </div>
+</div>

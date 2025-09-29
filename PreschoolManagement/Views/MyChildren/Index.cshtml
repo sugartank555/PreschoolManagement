@@ -1,0 +1,24 @@
+﻿@model IEnumerable<PreschoolManagement.Models.Student>
+@{ ViewData["Title"] = "Con em"; }
+@if (!Model.Any()) { <div class="alert alert-info">Không có bản ghi phù hợp.</div> }
+else {
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr><th style="width:120px">Mã</th><th>Họ tên</th><th style="width:140px">Ngày sinh</th><th style="width:100px">Giới tính</th><th>Lớp</th></tr>
+      </thead>
+      <tbody>
+        @foreach (var s in Model)
+        {
+          <tr>
+            <td>@s.Code</td>
+            <td>@s.FullName</td>
+            <td>@s.BirthDate.ToString("dd/MM/yyyy")</td>
+            <td>@s.Gender</td>
+            <td>@s.ClassRoom?.Name</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

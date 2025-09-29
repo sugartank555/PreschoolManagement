@@ -1,0 +1,54 @@
+﻿@model IEnumerable<PreschoolManagement.Models.ActivitySchedule>
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Thời khóa biểu";
+    var classes = (SelectList)ViewBag.Classes;
+    var dow = ViewBag.SelectedDow as DayOfWeek?;
+}
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2">
+            <div class="col-md-6">
+                <select name="classId" class="form-select" asp-items="classes">
+                    <option value="">-- Chọn lớp --</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <select name="dow" class="form-select">
+                    <option value="">-- Cả tuần --</option>
+                    @foreach (DayOfWeek d in Enum.GetValues(typeof(DayOfWeek)))
+                    {
+                        <option value="@((int)d)" selected="@(dow.HasValue && dow.Value == d)">@d</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2"><button class="btn btn-primary w-100">Xem</button></div>
+        </form>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Chưa có thời khóa biểu phù hợp.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead class="table-light">
+                <tr><th style="width:20%">Lớp</th><th style="width:15%">Thứ</th><th style="width:15%">Buổi/Tiết</th><th>Hoạt động</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var a in Model)
+                {
+                    <tr>
+                        <td>@a.ClassRoom?.Name</td>
+                        <td>@a.DayOfWeek</td>
+                        <td>@a.Slot</td>
+                        <td>@a.Activity</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
