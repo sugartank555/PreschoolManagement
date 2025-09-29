@@ -1,0 +1,37 @@
+﻿@model PreschoolManagement.Models.Announcement
+@{
+    ViewData["Title"] = "Chi tiết thông báo";
+}
+
+@section Breadcrumb {
+    <ol class="breadcrumb mb-3">
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Announcements" asp-action="Index">Thông báo</a></li>
+        <li class="breadcrumb-item active">Chi tiết</li>
+    </ol>
+}
+
+<div class="card">
+    <div class="card-body">
+        <h4 class="mb-1">@Model.Title</h4>
+        <div class="text-muted mb-3">
+            @Model.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+            <span class="badge bg-secondary ms-2">@Model.Audience</span>
+        </div>
+
+        <article class="mb-3">
+            @Html.Raw(Html.Encode(Model.Content).Replace("\n", "<br/>"))
+        </article>
+
+        @* Nếu có CreatedBy *@
+        @if (Model.CreatedBy != null)
+        {
+            <div class="small text-muted">Tạo bởi: @Model.CreatedBy.FullName (@Model.CreatedBy.Email)</div>
+        }
+
+        <div class="mt-3 d-flex gap-2">
+            <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@Model.Id">Sửa</a>
+            <a class="btn btn-outline-secondary" asp-action="Index">Quay lại</a>
+        </div>
+    </div>
+</div>

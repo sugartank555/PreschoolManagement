@@ -1,0 +1,56 @@
+﻿@model PreschoolManagement.Models.ClassRoom
+@{
+    ViewData["Title"] = "Chi tiết lớp";
+}
+
+@section Breadcrumb {
+    <ol class="breadcrumb mb-3">
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="ClassRooms" asp-action="Index">Lớp học</a></li>
+        <li class="breadcrumb-item active">Chi tiết</li>
+    </ol>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h4 class="mb-2">@Model.Name</h4>
+        <div class="text-muted mb-2">Khối: <strong>@(Model.Grade ?? "-")</strong> · Phòng: <strong>@(Model.Room ?? "-")</strong></div>
+        <div>GVCN: <strong>@(Model.Teacher?.FullName ?? Model.Teacher?.Email ?? "Chưa gán")</strong></div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Danh sách học sinh (@(Model.Students?.Count() ?? 0))</div>
+    <div class="card-body p-0">
+        @if (Model.Students == null || !Model.Students.Any())
+        {
+            <div class="p-3 text-muted">Chưa có học sinh nào thuộc lớp này.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr><th>Mã</th><th>Họ tên</th><th>Ngày sinh</th><th>Giới tính</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in Model.Students.OrderBy(x => x.FullName))
+                        {
+                            <tr>
+                                <td>@s.Code</td>
+                                <td>@s.FullName</td>
+                                <td>@s.BirthDate.ToString("dd/MM/yyyy")</td>
+                                <td>@s.Gender</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="mt-3 d-flex gap-2">
+    <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@Model.Id">Sửa</a>
+    <a class="btn btn-outline-secondary" asp-action="Index">Quay lại</a>
+</div>

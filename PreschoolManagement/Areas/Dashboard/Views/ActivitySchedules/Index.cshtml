@@ -1,0 +1,40 @@
+﻿@model IEnumerable<ActivitySchedule>
+@{
+    ViewData["Title"] = "Thời khóa biểu";
+    var classes = (Microsoft.AspNetCore.Mvc.Rendering.SelectList)ViewBag.Classes;
+    DayOfWeek? dow = ViewBag.Dow as DayOfWeek?;
+}
+<form class="row g-2 mb-3">
+    <div class="col-sm-5"><select name="classId" class="form-select" asp-items="classes"><option value="">-- Tất cả lớp --</option></select></div>
+    <div class="col-sm-4">
+        <select name="dow" class="form-select">
+            <option value="">-- Cả tuần --</option>
+            @foreach (DayOfWeek d in Enum.GetValues(typeof(DayOfWeek)))
+            {
+                <option value="@((int)d)">@d</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-3 d-flex gap-2">
+        <button class="btn btn-primary w-100">Lọc</button>
+        <a class="btn btn-success w-100" asp-action="Create">+ Thêm</a>
+    </div>
+</form>
+<table class="table table-bordered">
+    <thead><tr><th>Lớp</th><th>Thứ</th><th>Buổi/Tiết</th><th>Hoạt động</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@a.ClassRoom?.Name</td>
+                <td>@a.DayOfWeek</td>
+                <td>@a.Slot</td>
+                <td>@a.Activity</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@a.Id">Sửa</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@a.Id">Xóa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

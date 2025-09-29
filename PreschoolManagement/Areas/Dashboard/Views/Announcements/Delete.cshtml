@@ -1,0 +1,41 @@
+﻿@model PreschoolManagement.Models.Announcement
+@{
+    ViewData["Title"] = "Xóa thông báo";
+}
+
+@section Breadcrumb {
+    <ol class="breadcrumb mb-3">
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Announcements" asp-action="Index">Thông báo</a></li>
+        <li class="breadcrumb-item active">Xóa</li>
+    </ol>
+}
+
+<div class="alert alert-warning">
+    <strong>Bạn có chắc muốn xóa thông báo?</strong> Thao tác không thể hoàn tác.
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-2">Tiêu đề</dt>
+            <dd class="col-sm-10">@Model.Title</dd>
+
+            <dt class="col-sm-2">Đối tượng</dt>
+            <dd class="col-sm-10">@Model.Audience</dd>
+
+            <dt class="col-sm-2">Thời điểm</dt>
+            <dd class="col-sm-10">@Model.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+
+            <dt class="col-sm-2">Nội dung</dt>
+            <dd class="col-sm-10">@Model.Content</dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Hủy</a>
+</form>

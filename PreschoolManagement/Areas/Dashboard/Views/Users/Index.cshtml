@@ -1,0 +1,61 @@
+﻿@model IEnumerable<ApplicationUser>
+@{
+    ViewData["Title"] = "Người dùng";
+    var allRoles = (IEnumerable<string>)ViewBag.AllRoles;
+    var selectedRole = ViewBag.SelectedRole as string ?? "";
+    var userRoles = (IDictionary<string, IList<string>>)ViewBag.UserRoles;
+}
+<form class="d-flex gap-2 mb-3">
+    <select name="role" class="form-select" style="max-width:240px">
+        <option value="">-- Tất cả role --</option>
+        @foreach (var r in allRoles)
+        {
+            <option value="@r" selected="@(selectedRole == r)">@r</option>
+        }
+    </select>
+    <button class="btn btn-primary">Lọc</button>
+    <a class="btn btn-success ms-auto" asp-action="Create" asp-route-role="@selectedRole">+ Tạo người dùng</a>
+</form>
+
+<table class="table table-hover">
+    <thead><tr><th>Họ tên</th><th>Email</th><th>Roles</th><th class="text-end">Thao tác</th></tr></thead>
+    <tbody>
+        @foreach (var u in Model)
+        {
+            var roles = userRoles[u.Id];
+            <tr>
+                <td>@u.FullName</td>
+                <td>@u.Email</td>
+                <td>
+                    @foreach (var r in roles)
+                    {
+                        <span class="badge bg-secondary me-1">@r</span>
+                    }
+                </td>
+                <td class="text-end">
+                    <div class="btn-group">
+                        @foreach (var r in allRoles)
+                        {
+                            if (!roles.Contains(r))
+                            {
+                                <form asp-action="AddToRole" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@u.Id" />
+                                    <input type="hidden" name="role" value="@r" />
+                                    <button class="btn btn-sm btn-outline-primary">Thêm @r</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="RemoveFromRole" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@u.Id" />
+                                    <input type="hidden" name="role" value="@r" />
+                                    <button class="btn btn-sm btn-outline-danger">Bỏ @r</button>
+                                </form>
+                            }
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

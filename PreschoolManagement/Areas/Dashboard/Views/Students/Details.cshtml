@@ -1,0 +1,50 @@
+﻿@model PreschoolManagement.Models.Student
+@{
+    ViewData["Title"] = "Chi tiết học sinh";
+}
+
+@section Breadcrumb {
+    <ol class="breadcrumb mb-3">
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Students" asp-action="Index">Học sinh</a></li>
+        <li class="breadcrumb-item active">Chi tiết</li>
+    </ol>
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <h4 class="mb-1">@Model.FullName</h4>
+                <div class="text-muted mb-3">Mã: <strong>@Model.Code</strong></div>
+
+                <dl class="row">
+                    <dt class="col-sm-3">Ngày sinh</dt>
+                    <dd class="col-sm-9">@Model.BirthDate.ToString("dd/MM/yyyy")</dd>
+
+                    <dt class="col-sm-3">Giới tính</dt>
+                    <dd class="col-sm-9">@Model.Gender</dd>
+
+                    <dt class="col-sm-3">Lớp</dt>
+                    <dd class="col-sm-9">@Model.ClassRoom?.Name ?? "Chưa xếp lớp"</dd>
+
+                    <dt class="col-sm-3">Phụ huynh</dt>
+                    <dd class="col-sm-9">@Model.Parent?.FullName ?? @Model.Parent?.Email ?? "-"</dd>
+                </dl>
+            </div>
+            <div class="col-md-4">
+                <div class="border rounded p-3 bg-light">
+                    <div class="text-muted small mb-2">Ảnh đại diện</div>
+                    <div class="ratio ratio-1x1 bg-white d-flex align-items-center justify-content-center border">
+                        <span class="text-secondary">No Image</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3 d-flex gap-2">
+            <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@Model.Id">Sửa</a>
+            <a class="btn btn-outline-secondary" asp-action="Index">Quay lại</a>
+        </div>
+    </div>
+</div>

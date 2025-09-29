@@ -1,0 +1,22 @@
+﻿@model IEnumerable<Announcement>
+@{
+    ViewData["Title"] = "Thông báo";
+}
+<p><a class="btn btn-success" asp-action="Create">+ Tạo thông báo</a></p>
+<div class="list-group">
+    @foreach (var a in Model)
+    {
+        <div class="list-group-item">
+            <div class="d-flex justify-content-between">
+                <h5 class="mb-1">@a.Title</h5>
+                <small>@a.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+            </div>
+            <p class="mb-1">@a.Content</p>
+            <div><span class="badge bg-secondary">Audience: @a.Audience</span></div>
+            <div class="mt-2">
+                <a asp-action="Edit" asp-route-id="@a.Id" class="btn btn-sm btn-outline-primary">Sửa</a>
+                <a asp-action="Delete" asp-route-id="@a.Id" class="btn btn-sm btn-outline-danger">Xóa</a>
+            </div>
+        </div>
+    }
+</div>

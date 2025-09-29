@@ -1,0 +1,41 @@
+﻿@model PreschoolManagement.Models.Student
+@{
+    ViewData["Title"] = "Xóa học sinh";
+}
+
+@section Breadcrumb {
+    <ol class="breadcrumb mb-3">
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Students" asp-action="Index">Học sinh</a></li>
+        <li class="breadcrumb-item active">Xóa</li>
+    </ol>
+}
+
+<div class="alert alert-warning">
+    <strong>Bạn chắc chắn muốn xóa học sinh này?</strong> Thao tác không thể hoàn tác.
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Mã</dt>
+            <dd class="col-sm-9">@Model.Code</dd>
+
+            <dt class="col-sm-3">Họ tên</dt>
+            <dd class="col-sm-9">@Model.FullName</dd>
+
+            <dt class="col-sm-3">Ngày sinh</dt>
+            <dd class="col-sm-9">@Model.BirthDate.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-3">Lớp</dt>
+            <dd class="col-sm-9">@Model.ClassRoom?.Name ?? "Chưa xếp lớp"</dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <button class="btn btn-danger" type="submit">Xóa</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Hủy</a>
+</form>

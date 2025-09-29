@@ -1,0 +1,44 @@
+﻿@model PreschoolManagement.Models.FeeInvoice
+@{
+    ViewData["Title"] = "Xóa hóa đơn";
+}
+
+@section Breadcrumb {
+    <ol class="breadcrumb mb-3">
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Index">Hóa đơn học phí</a></li>
+        <li class="breadcrumb-item active">Xóa</li>
+    </ol>
+}
+
+<div class="alert alert-warning">
+    <strong>Bạn có chắc chắn muốn xóa hóa đơn này?</strong> Thao tác không thể hoàn tác.
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Học sinh</dt>
+            <dd class="col-sm-9">@Model.Student?.FullName</dd>
+
+            <dt class="col-sm-3">Tháng</dt>
+            <dd class="col-sm-9">@Model.Month.ToLocalTime().ToString("MM/yyyy")</dd>
+
+            <dt class="col-sm-3">Số tiền</dt>
+            <dd class="col-sm-9">@Model.Amount.ToString("n0")</dd>
+
+            <dt class="col-sm-3">Đã trả</dt>
+            <dd class="col-sm-9">@Model.Paid.ToString("n0")</dd>
+
+            <dt class="col-sm-3">Trạng thái</dt>
+            <dd class="col-sm-9">@Model.Status</dd>
+        </dl>
+    </div>
+</div>
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <button class="btn btn-danger" type="submit">Xóa</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Hủy</a>
+</form>

@@ -1,0 +1,30 @@
+﻿@using PreschoolManagement.Areas.Dashboard.ViewModels
+@model IEnumerable<TopClassVM>
+
+<div class="card h-100">
+    <div class="card-header"><strong>Lớp sĩ số cao</strong></div>
+    <div class="card-body p-0">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="p-3 text-muted">Chưa có dữ liệu.</div>
+        }
+        else
+        {
+            <div class="list-group list-group-flush">
+                @foreach (var c in Model)
+                {
+                    <div class="list-group-item d-flex justify-content-between">
+                        <div>
+                            <div class="fw-semibold">@c.ClassName</div>
+                            <div class="small text-muted">Khối: @(c.Grade ?? "-") · Phòng: @(c.Room ?? "-")</div>
+                        </div>
+                        <div class="badge bg-primary-subtle text-primary rounded-pill align-self-center">@c.StudentCount</div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+    <div class="card-footer text-end">
+        <a class="btn btn-sm btn-outline-primary" asp-area="Dashboard" asp-controller="ClassRooms" asp-action="Index">Quản lý lớp</a>
+    </div>
+</div>

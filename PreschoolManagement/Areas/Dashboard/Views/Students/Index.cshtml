@@ -1,0 +1,72 @@
+﻿@model IEnumerable<PreschoolManagement.Models.Student>
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Học sinh";
+    var classes = (SelectList)ViewBag.Classes;
+    string keyword = ViewBag.Keyword as string ?? "";
+}
+
+@section Breadcrumb {
+    <ol class="breadcrumb mb-3">
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
+        <li class="breadcrumb-item active">Học sinh</li>
+    </ol>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2">
+            <div class="col-md-6">
+                <input name="q" value="@keyword" class="form-control" placeholder="Tìm theo tên hoặc mã..." />
+            </div>
+            <div class="col-md-4">
+                <select name="classId" class="form-select" asp-items="classes">
+                    <option value="">-- Tất cả lớp --</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button class="btn btn-primary w-100" type="submit">Lọc</button>
+                <a class="btn btn-success w-100" asp-action="Create">+ Thêm</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Chưa có học sinh nào.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:120px">Mã</th>
+                    <th>Họ tên</th>
+                    <th style="width:140px">Ngày sinh</th>
+                    <th style="width:100px">Giới tính</th>
+                    <th>Lớp</th>
+                    <th class="text-end" style="width:220px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr>
+                        <td>@s.Code</td>
+                        <td>@s.FullName</td>
+                        <td>@s.BirthDate.ToString("dd/MM/yyyy")</td>
+                        <td>@s.Gender</td>
+                        <td>@s.ClassRoom?.Name</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@s.Id">Xem</a>
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@s.Id">Sửa</a>
+                            <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@s.Id">Xóa</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

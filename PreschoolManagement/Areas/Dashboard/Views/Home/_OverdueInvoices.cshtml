@@ -1,0 +1,44 @@
+﻿@model IEnumerable<PreschoolManagement.Models.FeeInvoice>
+
+<div class="card h-100">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Hóa đơn quá hạn</strong>
+        <a class="btn btn-sm btn-outline-secondary" asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Index" asp-route-status="Overdue">Xem tất cả</a>
+    </div>
+    <div class="card-body p-0">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="p-3 text-muted">Không có hóa đơn quá hạn.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr><th>Tháng</th><th>Học sinh</th><th>Lớp</th><th class="text-end">Còn thiếu</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var f in Model)
+                        {
+                            var remain = Math.Max(0, f.Amount - f.Paid);
+                            <tr>
+                                <td>@f.Month.ToLocalTime().ToString("MM/yyyy")</td>
+                                <td>@f.Student?.FullName</td>
+                                <td>@f.Student?.ClassRoom?.Name</td>
+                                <td class="text-end">@remain.ToString("n0")</td>
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        <form asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="MarkPaid" asp-route-id="@f.Id" method="post" class="d-inline">
+                                            <button class="btn btn-sm btn-success" type="submit" disabled="@(f.Status == "Paid")">Thu</button>
+                                        </form>
+                                        <a class="btn btn-sm btn-outline-primary" asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Edit" asp-route-id="@f.Id">Sửa</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

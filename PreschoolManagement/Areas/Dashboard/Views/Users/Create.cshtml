@@ -1,0 +1,27 @@
+﻿@model PreschoolManagement.Areas.Dashboard.Controllers.CreateUserVM
+@{
+    ViewData["Title"] = "Tạo người dùng";
+}
+<form method="post" class="row g-3">
+    <div class="col-md-6">
+        <label class="form-label">Họ tên</label>
+        <input asp-for="FullName" class="form-control" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Mật khẩu (để trống sẽ dùng User@123)</label>
+        <input asp-for="Password" class="form-control" type="password" />
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Role</label>
+        <input asp-for="Role" class="form-control" placeholder="Admin/Teacher/Parent/Staff" />
+    </div>
+    <div class="col-12">
+        <button class="btn btn-primary">Tạo</button>
+        <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+    </div>
+</form>

@@ -1,0 +1,55 @@
+﻿@model PreschoolManagement.Models.ClassRoom
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Thêm lớp học";
+    var teachers = (SelectList)ViewBag.Teachers;
+}
+
+@section Breadcrumb {
+    <ol class="breadcrumb mb-3">
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="ClassRooms" asp-action="Index">Lớp học</a></li>
+        <li class="breadcrumb-item active">Thêm</li>
+    </ol>
+}
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Create" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+
+            <div class="col-md-6">
+                <label class="form-label">Tên lớp <span class="text-danger">*</span></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Khối</label>
+                <input asp-for="Grade" class="form-control" placeholder="Mầm / Chồi / Lá..." />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Phòng</label>
+                <input asp-for="Room" class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Giáo viên chủ nhiệm</label>
+                <select asp-for="TeacherId" class="form-select" asp-items="teachers">
+                    <option value="">-- Chưa gán --</option>
+                </select>
+                <span asp-validation-for="TeacherId" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+                <button class="btn btn-primary">Lưu</button>
+                <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
+}

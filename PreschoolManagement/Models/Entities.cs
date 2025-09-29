@@ -1,4 +1,6 @@
-﻿namespace PreschoolManagement.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PreschoolManagement.Models
 {
     public class ClassRoom // Lớp học
     {
@@ -41,10 +43,14 @@
         public int StudentId { get; set; }
         public Student Student { get; set; } = default!;
         public DateTime Month { get; set; } // 2025-09-01 -> Tháng 9/2025
+        [Range(0, double.MaxValue)]
         public decimal Amount { get; set; }
+        [Range(0, double.MaxValue)]
         public decimal Paid { get; set; }
+
         public string Status { get; set; } = "Pending"; // Pending/Paid/Overdue
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
     }
 
     public class Announcement // Thông báo

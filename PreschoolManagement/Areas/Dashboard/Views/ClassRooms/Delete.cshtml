@@ -1,0 +1,48 @@
+﻿@model PreschoolManagement.Models.ClassRoom
+@{
+    ViewData["Title"] = "Xóa lớp học";
+}
+
+@section Breadcrumb {
+    <ol class="breadcrumb mb-3">
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="ClassRooms" asp-action="Index">Lớp học</a></li>
+        <li class="breadcrumb-item active">Xóa</li>
+    </ol>
+}
+
+<div class="alert alert-warning">
+    <strong>Bạn có chắc chắn muốn xóa lớp?</strong> Thao tác không thể hoàn tác.
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Tên lớp</dt>
+            <dd class="col-sm-9">@Model.Name</dd>
+
+            <dt class="col-sm-3">Khối</dt>
+            <dd class="col-sm-9">@Model.Grade</dd>
+
+            <dt class="col-sm-3">Phòng</dt>
+            <dd class="col-sm-9">@Model.Room</dd>
+
+            <dt class="col-sm-3">GVCN</dt>
+            <dd class="col-sm-9">@(@Model.Teacher?.FullName ?? @Model.Teacher?.Email ?? "Chưa gán")</dd>
+        </dl>
+
+        @if (Model.Students != null && Model.Students.Any())
+        {
+            <div class="alert alert-danger mt-2">
+                Lưu ý: Lớp đang có <strong>@Model.Students.Count()</strong> học sinh. Xóa lớp có thể làm mất liên kết lớp-học sinh.
+            </div>
+        }
+    </div>
+</div>
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Xóa</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Hủy</a>
+</form>

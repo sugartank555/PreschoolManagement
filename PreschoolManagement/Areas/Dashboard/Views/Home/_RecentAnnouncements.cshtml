@@ -1,0 +1,32 @@
+﻿@model IEnumerable<PreschoolManagement.Models.Announcement>
+
+<div class="card h-100">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>Thông báo mới</strong>
+        <a class="btn btn-sm btn-outline-secondary" asp-area="Dashboard" asp-controller="Announcements" asp-action="Index">Quản lý</a>
+    </div>
+    <div class="card-body p-0">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="p-3 text-muted">Chưa có thông báo.</div>
+        }
+        else
+        {
+            <div class="list-group list-group-flush">
+                @foreach (var a in Model)
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div class="fw-semibold text-truncate">@a.Title</div>
+                            <small class="text-muted">@a.PublishedAt.ToLocalTime().ToString("dd/MM HH:mm")</small>
+                        </div>
+                        <div class="small text-muted mb-1">Đối tượng: @a.Audience</div>
+                        <div class="text-secondary text-truncate">
+                            @((a.Content?.Length ?? 0) > 120 ? a.Content!.Substring(0, 120) + "..." : a.Content)
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,83 @@
+﻿@using PreschoolManagement.Areas.Dashboard.ViewModels
+@model DashboardHomeVM
+@{
+    ViewData["Title"] = "Tổng quan";
+}
+
+@section Breadcrumb {
+    <ol class="breadcrumb mb-3">
+        <li class="breadcrumb-item active">Tổng quan</li>
+    </ol>
+}
+
+<div class="row g-3">
+    <div class="col-12 col-md-6 col-xl-3">
+        @await Html.PartialAsync("_KpiCard", Tuple.Create("Học sinh", Model.TotalStudents.ToString("n0"), "fa-children"))
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        @await Html.PartialAsync("_KpiCard", Tuple.Create("Lớp học", Model.TotalClasses.ToString("n0"), "fa-chalkboard"))
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        @await Html.PartialAsync("_KpiCard", Tuple.Create("HĐ chờ", Model.PendingInvoices.ToString("n0"), "fa-hourglass-half"))
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        @await Html.PartialAsync("_KpiCard", Tuple.Create("HĐ quá hạn", Model.OverdueInvoices.ToString("n0"), "fa-triangle-exclamation"))
+    </div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-12 col-xl-8">
+        <div class="card h-100">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <strong>Thu học phí 6 tháng gần nhất</strong>
+                <small class="text-muted">Đã thu (Paid) vs Tổng phí (Amount)</small>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-4">
+        @await Html.PartialAsync("_TopClasses", Model.TopClasses)
+    </div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-12 col-xl-6">
+        @await Html.PartialAsync("_OverdueInvoices", Model.LatestOverdue)
+    </div>
+    <div class="col-12 col-xl-6">
+        @await Html.PartialAsync("_RecentAnnouncements", Model.RecentAnnouncements)
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" crossorigin="anonymous"></script>
+    <script>
+        (function () {
+            const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Chart.Labels));
+            const paid = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Chart.PaidSeries));
+            const amount = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Chart.AmountSeries));
+
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Đã thu', data: paid, borderWidth: 2, tension: .25 },
+                        { label: 'Tổng phí', data: amount, borderWidth: 2, tension: .25 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { callback: v => Number(v).toLocaleString('vi-VN') } }
+                    }
+                }
+            });
+        })();
+    </script>
+}

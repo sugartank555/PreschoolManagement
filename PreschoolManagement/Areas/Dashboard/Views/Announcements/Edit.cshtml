@@ -1,0 +1,61 @@
+﻿@model PreschoolManagement.Models.Announcement
+@{
+    ViewData["Title"] = "Sửa thông báo";
+    var local = Model.PublishedAt.ToLocalTime();
+    string publishedLocal = local.ToString("yyyy-MM-ddTHH:mm");
+}
+
+@section Breadcrumb {
+    <ol class="breadcrumb mb-3">
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Announcements" asp-action="Index">Thông báo</a></li>
+        <li class="breadcrumb-item active">Sửa</li>
+    </ol>
+}
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Edit" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div class="col-12">
+                <label class="form-label">Tiêu đề</label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Đối tượng</label>
+                <select asp-for="Audience" class="form-select">
+                    <option value="All" selected="@(Model.Audience == "All")">All</option>
+                    <option value="Teachers" selected="@(Model.Audience == "Teachers")">Teachers</option>
+                    <option value="Parents" selected="@(Model.Audience == "Parents")">Parents</option>
+                </select>
+                <span asp-validation-for="Audience" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Thời điểm đăng</label>
+                <input type="datetime-local" class="form-control" name="PublishedAt"
+                       value="@publishedLocal" />
+                <small class="text-muted">Giờ hiển thị theo máy của bạn; backend lưu UTC.</small>
+            </div>
+
+            <div class="col-12">
+                <label class="form-label">Nội dung</label>
+                <textarea asp-for="Content" rows="6" class="form-control"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Cập nhật</button>
+                <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
+}
