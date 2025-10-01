@@ -7,7 +7,7 @@ using PreschoolManagement.Models;
 
 namespace PreschoolManagement.Controllers
 {
-    [Authorize]
+   
     public class SchedulesController : Controller
     {
         private readonly ApplicationDbContext _db;

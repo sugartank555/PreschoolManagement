@@ -80,6 +80,7 @@
                                    class="nav-link @(c == "invoices" ? "active fw-bold" : "")">Hóa đơn</a>
                             </li>
 
+
                             @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
                             {
                                 <li class="nav-item ms-2">

@@ -6,14 +6,19 @@
 
 @section Breadcrumb {
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Dashboard</a></li>
-        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Students" asp-action="Index">Học sinh</a></li>
+        <li class="breadcrumb-item">
+            <a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Dashboard</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-area="Dashboard" asp-controller="Students" asp-action="Index">Học sinh</a>
+        </li>
         <li class="breadcrumb-item active">Chi tiết</li>
     </ol>
 }
 
 <div class="card">
     <div class="card-body">
+        <h5 class="mb-3">Thông tin học sinh</h5>
         <dl class="row">
             <dt class="col-sm-3">Mã học sinh</dt>
             <dd class="col-sm-9">@Model.Code</dd>
@@ -28,15 +33,104 @@
             <dd class="col-sm-9">@Model.Gender</dd>
 
             <dt class="col-sm-3">Lớp</dt>
-            <dd class="col-sm-9">@Model.ClassRoom?.Name</dd>
+            <dd class="col-sm-9">@Model.ClassRoom?.Name ?? "-"</dd>
 
             <dt class="col-sm-3">Phụ huynh</dt>
-            <dd class="col-sm-9">@((Model.Parent?.FullName ?? Model.Parent?.Email) ?? "-")</dd>
+            <dd class="col-sm-9">
+                @{
+                    var parentName = Model.Parent?.FullName ?? Model.Parent?.Email;
+                }
+                @(!string.IsNullOrWhiteSpace(parentName) ? parentName : "-")
+            </dd>
         </dl>
 
-        <div class="mt-3">
-            <a class="btn btn-outline-secondary" asp-area="Dashboard" asp-controller="Students" asp-action="Index">Quay lại</a>
-            <a class="btn btn-primary ms-2" asp-area="Dashboard" asp-controller="Students" asp-action="Edit" asp-route-id="@Model.Id">Sửa</a>
+        <div class="mt-3 d-flex gap-2">
+            <a class="btn btn-outline-secondary"
+               asp-area="Dashboard" asp-controller="Students" asp-action="Index">Quay lại</a>
+
+            <a class="btn btn-primary"
+               asp-area="Dashboard" asp-controller="Students" asp-action="Edit" asp-route-id="@Model.Id">Sửa</a>
+
+            <a class="btn btn-success"
+               asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Create"
+               asp-route-studentId="@Model.Id">
+                + Tạo hóa đơn cho @Model.FullName
+            </a>
         </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="mb-3">Hóa đơn của học sinh</h5>
+
+        @{
+            // Nếu controller đã Include(s => s.FeeInvoices) thì có thể dùng trực tiếp:
+            // var invoices = Model.FeeInvoices;
+
+            // View an toàn: nếu navigation chưa load thì để null-safe
+            var invoices = Model.FeeInvoices;
+        }
+
+        @if (invoices == null || !invoices.Any())
+        {
+            <div class="alert alert-info">
+                Chưa có hóa đơn nào cho học sinh này.
+                <a class="alert-link"
+                   asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Create"
+                   asp-route-studentId="@Model.Id">Tạo hóa đơn</a>.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tháng</th>
+                            <th>Phụ huynh</th>
+                            <th class="text-end">Số tiền</th>
+                            <th class="text-end">Đã thu</th>
+                            <th>Trạng thái</th>
+                            <th style="width:220px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var f in invoices.OrderByDescending(x => x.Month))
+                        {
+                            var badge = f.Status switch
+                            {
+                                "Paid" => "badge bg-success",
+                                "Overdue" => "badge bg-danger",
+                                _ => "badge bg-warning text-dark"
+                            };
+
+                            <tr>
+                                <td>@f.Month.ToString("MM/yyyy")</td>
+                                <td>@(f.Parent?.FullName ?? f.Parent?.Email ?? "-")</td>
+                                <td class="text-end">@f.Amount.ToString("n0")</td>
+                                <td class="text-end">@f.Paid.ToString("n0")</td>
+                                <td><span class="@badge">@f.Status</span></td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Details" asp-route-id="@f.Id">Xem</a>
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Edit" asp-route-id="@f.Id">Sửa</a>
+                                    <a class="btn btn-sm btn-outline-danger"
+                                       asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Delete" asp-route-id="@f.Id">Xóa</a>
+                                    @if (f.Status != "Paid")
+                                    {
+                                        <form method="post" asp-area="Dashboard" asp-controller="FeeInvoices"
+                                              asp-action="MarkPaid" asp-route-id="@f.Id" class="d-inline">
+                                            <button class="btn btn-sm btn-success">Đã trả</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
 </div>
