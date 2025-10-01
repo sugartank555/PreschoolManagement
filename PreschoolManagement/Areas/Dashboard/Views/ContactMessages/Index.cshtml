@@ -1,0 +1,117 @@
+﻿@model IEnumerable<PreschoolManagement.Models.ContactMessage>
+@{
+    Layout = "~/Areas/Dashboard/Views/Shared/_DashboardLayout.cshtml";
+    var total = (int)(ViewBag.Total ?? 0);
+    var page = (int)(ViewBag.Page ?? 1);
+    var pageSize = (int)(ViewBag.PageSize ?? 10);
+    var q = (string?)ViewBag.Query ?? "";
+    int totalPages = (int)Math.Ceiling(total / (double)pageSize);
+}
+
+@section Breadcrumb{
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
+        <li class="breadcrumb-item active">Liên hệ</li>
+    </ol>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label">Tìm kiếm</label>
+                <input type="text" name="q" value="@q" class="form-control" placeholder="Tên / email / chủ đề / nội dung..." />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Trang</label>
+                <input type="number" name="page" value="@@page" min="1" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">/Trang</label>
+                <input type="number" name="pageSize" value="@pageSize" min="5" class="form-control" />
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button class="btn btn-primary w-100">Lọc</button>
+                <a class="btn btn-outline-secondary" asp-action="Index">Xoá lọc</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="text-muted">Tổng: @total</div>
+    <div>
+        <a class="btn btn-sm btn-outline-success"
+           asp-action="ExportCsv" asp-route-q="@q">
+            <i class="fa fa-file-csv me-1"></i> Xuất CSV
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Thời gian</th>
+                    <th>Người gửi</th>
+                    <th>Email</th>
+                    <th>Chủ đề</th>
+                    <th class="text-truncate" style="max-width:360px;">Nội dung</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7" class="text-center text-muted p-4">Không có bản ghi.</td></tr>
+                }
+                else
+                {
+                    foreach (var m in Model)
+                    {
+                        <tr>
+                            <td>@m.Id</td>
+                            <td>@m.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@m.Name</td>
+                            <td><a href="mailto:@m.Email">@m.Email</a></td>
+                            <td>@(string.IsNullOrWhiteSpace(m.Subject) ? "-" : m.Subject)</td>
+                            <td class="text-truncate" style="max-width:360px;">@m.Message</td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   asp-action="Details" asp-route-id="@m.Id">
+                                    Chi tiết
+                                </a>
+                                <form asp-action="Delete" asp-route-id="@m.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Xoá liên hệ #@m.Id ?');">
+                                    <button class="btn btn-sm btn-outline-danger">Xoá</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (totalPages > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination">
+            <li class="page-item @(page<=1 ? "disabled" : "")">
+                <a class="page-link" asp-route-q="@q" asp-route-page="@(page-1)" asp-route-pageSize="@pageSize">«</a>
+            </li>
+            @for (int i = Math.Max(1, page - 3); i <= Math.Min(totalPages, page + 3); i++)
+            {
+                <li class="page-item @(i==page?"active":"")">
+                    <a class="page-link" asp-route-q="@q" asp-route-page="@i" asp-route-pageSize="@pageSize">@i</a>
+                </li>
+            }
+            <li class="page-item @(page>=totalPages ? "disabled" : "")">
+                <a class="page-link" asp-route-q="@q" asp-route-page="@(page+1)" asp-route-pageSize="@pageSize">»</a>
+            </li>
+        </ul>
+    </nav>
+}

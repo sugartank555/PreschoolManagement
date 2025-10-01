@@ -1,0 +1,90 @@
+﻿@model PreschoolManagement.Models.VisitRegistration
+@{
+    ViewData["Title"] = "Đăng ký tham quan";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Styles {
+    <style>
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,.06);
+        }</style>
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card p-4">
+                <h2 class="mb-3">Đăng ký tham quan</h2>
+                <p class="text-muted mb-4">Điền thông tin bên dưới, nhà trường sẽ liên hệ xác nhận lịch.</p>
+
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="ParentName" class="form-label">Họ và tên phụ huynh</label>
+                        <input asp-for="ParentName" class="form-control" />
+                        <span asp-validation-for="ParentName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label">Số điện thoại</label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label asp-for="VisitDate" class="form-label">Ngày mong muốn</label>
+                            <input asp-for="VisitDate" class="form-control" />
+                            <span asp-validation-for="VisitDate" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3 col-md-6">
+                            <label asp-for="VisitSlot" class="form-label">Khung giờ</label>
+                            <select asp-for="VisitSlot" class="form-select">
+                                <option value="">-- Chọn --</option>
+                                <option>Sáng</option>
+                                <option>Chiều</option>
+                            </select>
+                            <span asp-validation-for="VisitSlot" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label class="form-label">Bé của tôi</label>
+                            <select asp-for="StudentId" class="form-select" asp-items="ViewBag.MyStudents">
+                                <option value="">-- Không chọn --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 col-md-6">
+                            <label class="form-label">Lớp muốn tham quan</label>
+                            <select asp-for="ClassRoomId" class="form-select" asp-items="ViewBag.ClassRooms">
+                                <option value="">-- Không chọn --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Note" class="form-label">Ghi chú</label>
+                        <textarea asp-for="Note" rows="3" class="form-control"></textarea>
+                        <span asp-validation-for="Note" class="text-danger"></span>
+                    </div>
+
+                    <button class="btn btn-primary">Gửi đăng ký</button>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary ms-2">Về trang chủ</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

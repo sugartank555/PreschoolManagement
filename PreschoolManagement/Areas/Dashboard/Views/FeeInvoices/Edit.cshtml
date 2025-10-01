@@ -3,13 +3,15 @@
 @{
     ViewData["Title"] = "Sửa hóa đơn";
     var students = (SelectList)ViewBag.Students;
-    string monthStr = new DateTime(Model.Month.Year, Model.Month.Month, 1).ToString("yyyy-MM");
+    var parents = (SelectList)ViewBag.Parents;
+    var monthStr = new DateTime(Model.Month.Year, Model.Month.Month, 1).ToString("yyyy-MM");
+    var mapJson = (string?)ViewBag.StudentParentMapJson;
 }
 
 @section Breadcrumb {
     <ol class="breadcrumb mb-3">
         <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
-        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Index">Hóa đơn học phí</a></li>
+        <li class="breadcrumb-item"><a asp-action="Index">Hóa đơn học phí</a></li>
         <li class="breadcrumb-item active">Sửa</li>
     </ol>
 }
@@ -22,10 +24,18 @@
 
             <div class="col-md-6">
                 <label class="form-label">Học sinh</label>
-                <select asp-for="StudentId" class="form-select" asp-items="students">
+                <select asp-for="StudentId" class="form-select" asp-items="students" id="StudentId">
                     <option value="">-- Chọn học sinh --</option>
                 </select>
                 <span asp-validation-for="StudentId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Phụ huynh</label>
+                <select asp-for="ParentId" class="form-select" asp-items="parents" id="ParentId">
+                    <option value="">-- Chọn phụ huynh --</option>
+                </select>
+                <span asp-validation-for="ParentId" class="text-danger"></span>
             </div>
 
             <div class="col-md-3">
@@ -36,9 +46,9 @@
             <div class="col-md-3">
                 <label class="form-label">Trạng thái</label>
                 <select asp-for="Status" class="form-select">
-                    <option value="Pending" selected="@(Model.Status == "Pending")">Pending</option>
-                    <option value="Paid" selected="@(Model.Status == "Paid")">Paid</option>
-                    <option value="Overdue" selected="@(Model.Status == "Overdue")">Overdue</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Overdue">Overdue</option>
                 </select>
             </div>
 
@@ -55,7 +65,7 @@
             </div>
 
             <div class="col-12 d-flex gap-2">
-                <button class="btn btn-primary" type="submit">Cập nhật</button>
+                <button class="btn btn-primary" type="submit">Lưu</button>
                 <a asp-action="Index" class="btn btn-secondary">Hủy</a>
             </div>
         </form>
@@ -64,4 +74,16 @@
 
 @section Scripts {
     <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
+    @if (!string.IsNullOrWhiteSpace(mapJson))
+    {
+        <script>
+            const map = @Html.Raw(mapJson);
+            const studentSel = document.getElementById('StudentId');
+            const parentSel  = document.getElementById('ParentId');
+            studentSel?.addEventListener('change', () => {
+                const sid = studentSel.value;
+                if (sid && map[sid]) parentSel.value = map[sid];
+            });
+        </script>
+    }
 }

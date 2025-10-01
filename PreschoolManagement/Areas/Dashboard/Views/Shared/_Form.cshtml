@@ -1,0 +1,50 @@
+﻿@model PreschoolManagement.Models.Student
+@* Dùng trong Create/Edit *@
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <label asp-for="Code" class="form-label">Mã học sinh</label>
+        <input asp-for="Code" class="form-control" />
+        <span asp-validation-for="Code" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-8">
+        <label asp-for="FullName" class="form-label">Họ tên</label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="BirthDate" class="form-label">Ngày sinh</label>
+        <input asp-for="BirthDate" type="date" class="form-control" />
+        <span asp-validation-for="BirthDate" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Gender" class="form-label">Giới tính</label>
+        <select asp-for="Gender" class="form-select">
+            <option value="Male">Nam</option>
+            <option value="Female">Nữ</option>
+            <option value="Other">Khác</option>
+        </select>
+        <span asp-validation-for="Gender" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Lớp học</label>
+        <select asp-for="ClassRoomId" class="form-select" asp-items="ViewBag.ClassRooms">
+            <option value="">-- Chưa xếp lớp --</option>
+        </select>
+        <span asp-validation-for="ClassRoomId" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Phụ huynh</label>
+        <select asp-for="ParentId" class="form-select" asp-items="ViewBag.Parents">
+            <option value="">-- Chưa gắn phụ huynh --</option>
+        </select>
+        <span asp-validation-for="ParentId" class="text-danger"></span>
+    </div>
+</div>

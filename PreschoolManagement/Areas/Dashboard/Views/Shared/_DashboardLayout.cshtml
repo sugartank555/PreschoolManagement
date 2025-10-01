@@ -4,25 +4,39 @@
 @inject UserManager<ApplicationUser> UserManager
 @{
     var title = (ViewData["Title"] as string) ?? "Dashboard";
-    var user = User?.Identity?.IsAuthenticated == true ? await UserManager.GetUserAsync(User) : null;
+    var me = User?.Identity?.IsAuthenticated == true ? await UserManager.GetUserAsync(User) : null;
+    var displayName = me?.FullName ?? User?.Identity?.Name ?? "User";
+
+    string? roleLabel = null;
+    if (User.IsInRole("Admin")) roleLabel = "Admin";
+    else if (User.IsInRole("Staff")) roleLabel = "Staff";
+    else if (User.IsInRole("Teacher")) roleLabel = "Teacher";
+    else if (User.IsInRole("Parent")) roleLabel = "Parent";
+
+    var area = (ViewContext.RouteData.Values["area"]?.ToString() ?? "");
+    var ctrl = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "");
+    bool inAcademics = area == "Dashboard" && new[] { "ClassRooms", "Students", "ActivitySchedules" }.Contains(ctrl);
+    bool inFinance = area == "Dashboard" && new[] { "FeeInvoices" }.Contains(ctrl);
+    Func<string, string, string> active = (c, a) => (area == "Dashboard" && ctrl == c && a == "Index") ? "active" : "";
 }
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@title - Preschool Admin</title>
-    <meta name="description" content="Bảng điều khiển quản trị mầm non" />
-    <meta name="author" content="Preschool Admin" />
 
-    <!-- Vendor styles -->
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/Dashboard/css/styles.css" asp-append-version="true" />
-
-    <!-- Icons -->
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+
+    <style>
+        .avatar-dot {
+            width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;
+            border-radius:50%; background:#6c757d; color:#fff; font-size:.8rem;
+        }
+        .navbar .badge { font-size:.7rem; }
+    </style>
 
     @RenderSection("Styles", required: false)
 </head>
@@ -30,18 +44,16 @@
     <!-- Topbar -->
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Brand -->
-        <a class="navbar-brand ps-3"
-           asp-area="Dashboard" asp-controller="Home" asp-action="Index">
+        <a class="navbar-brand ps-3" href="@Url.Action("Index", "Home", new { area = "Dashboard" })">
             Preschool Admin
         </a>
 
         <!-- Sidebar Toggle -->
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0"
-                id="sidebarToggle" type="button" aria-label="Toggle sidebar">
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" type="button" aria-label="Toggle sidebar">
             <i class="fas fa-bars"></i>
         </button>
 
-        <!-- Search (optional) -->
+        <!-- Search (tùy chọn) -->
         <form class="d-none d-md-inline-block ms-auto me-0 me-md-3 my-2 my-md-0" role="search">
             <div class="input-group">
                 <input class="form-control" type="search" placeholder="Tìm kiếm..." aria-label="Search" />
@@ -52,27 +64,67 @@
         <!-- User menu -->
         <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdown"
+                <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" id="navbarDropdown"
                    href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-user fa-fw"></i>
-                    <span class="ms-1">@user?.FullName ?? User?.Identity?.Name ?? "User"</span>
+                    <span class="avatar-dot">@((displayName?.FirstOrDefault() == '\0') ? 'U' : char.ToUpper(displayName![0]))</span>
+                    <span class="ms-1">@displayName</span>
+                    @if (!string.IsNullOrEmpty(roleLabel))
+                    {
+                        <span class="badge bg-secondary ms-1">@roleLabel</span>
+                    }
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Index">Về trang người dùng</a></li>
-                    <li><a class="dropdown-item" asp-area="Dashboard" asp-controller="Users" asp-action="Index">Quản lý người dùng</a></li>
+                    <li>
+                        <a class="dropdown-item" href="@Url.Action("Index", "Home", new { area = "" })">
+                            <i class="fa-solid fa-house me-2"></i>Về trang người dùng
+                        </a>
+                    </li>
+
+                    <!-- Quản lý người dùng chỉ hiện cho Admin -->
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li>
+                            <a class="dropdown-item" href="@Url.Action("Index", "Users", new { area = "Dashboard" })">
+                                <i class="fa-solid fa-users-gear me-2"></i>Quản lý người dùng
+                            </a>
+                        </li>
+                    }
+
                     <li><hr class="dropdown-divider" /></li>
+
+                    <!-- Liên kết trang quản lý tài khoản (Identity UI) -->
+                    <li>
+                        <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+                            <i class="fa-solid fa-user-gear me-2"></i>Tài khoản của tôi
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/ChangePassword">
+                            <i class="fa-solid fa-key me-2"></i>Đổi mật khẩu
+                        </a>
+                    </li>
+
+                    <li><hr class="dropdown-divider" /></li>
+
                     @if (SignInManager.IsSignedIn(User))
                     {
                         <li>
                             <form class="dropdown-item p-0" asp-area="Identity" asp-page="/Account/Logout"
                                   asp-route-returnUrl="~/" method="post">
-                                <button type="submit" class="btn btn-link w-100 text-start px-3">Đăng xuất</button>
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-link w-100 text-start px-3">
+                                    <i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Đăng xuất
+                                </button>
                             </form>
                         </li>
                     }
                     else
                     {
-                        <li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Login">Đăng nhập</a></li>
+                        <li>
+                            <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Login">
+                                <i class="fa-solid fa-right-to-bracket me-2"></i>Đăng nhập
+                            </a>
+                        </li>
                     }
                 </ul>
             </li>
@@ -85,83 +137,60 @@
             <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
-
                         <div class="sb-sidenav-menu-heading">Core</div>
-                        <a class="nav-link"
-                           asp-area="Dashboard" asp-controller="Home" asp-action="Index">
+                        <a class="nav-link @active("Home", "Index")" href="@Url.Action("Index", "Home", new { area = "Dashboard" })">
                             <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                             Tổng quan
                         </a>
 
                         <div class="sb-sidenav-menu-heading">Quản lý</div>
-
-                        <a class="nav-link collapsed" href="#"
+                        <a class="nav-link @(inAcademics ? "" : "collapsed")" href="#"
                            data-bs-toggle="collapse" data-bs-target="#collapseAcademics"
-                           aria-expanded="false" aria-controls="collapseAcademics">
+                           aria-expanded="@(inAcademics.ToString().ToLower())" aria-controls="collapseAcademics">
                             <div class="sb-nav-link-icon"><i class="fas fa-school"></i></div>
                             Học vụ
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
-                        <div class="collapse" id="collapseAcademics" data-bs-parent="#sidenavAccordion">
+                        <div class="collapse @(inAcademics ? "show" : "")" id="collapseAcademics">
                             <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link"
-                                   asp-area="Dashboard" asp-controller="ClassRooms" asp-action="Index">
-                                    Lớp học
-                                </a>
-                                <a class="nav-link"
-                                   asp-area="Dashboard" asp-controller="Students" asp-action="Index">
-                                    Học sinh
-                                </a>
-                                <a class="nav-link"
-                                   asp-area="Dashboard" asp-controller="ActivitySchedules" asp-action="Index">
-                                    Thời khóa biểu
-                                </a>
+                                <a class="nav-link @active("ClassRooms", "Index")" href="@Url.Action("Index", "ClassRooms", new { area = "Dashboard" })">Lớp học</a>
+                                <a class="nav-link @active("Students", "Index")" href="@Url.Action("Index", "Students", new { area = "Dashboard" })">Học sinh</a>
+                                <a class="nav-link @active("ActivitySchedules", "Index")" href="@Url.Action("Index", "ActivitySchedules", new { area = "Dashboard" })">Thời khóa biểu</a>
                             </nav>
                         </div>
 
-                        <a class="nav-link collapsed" href="#"
+                        <a class="nav-link @(inFinance ? "" : "collapsed")" href="#"
                            data-bs-toggle="collapse" data-bs-target="#collapseFinance"
-                           aria-expanded="false" aria-controls="collapseFinance">
+                           aria-expanded="@(inFinance.ToString().ToLower())" aria-controls="collapseFinance">
                             <div class="sb-nav-link-icon"><i class="fas fa-coins"></i></div>
                             Tài chính
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
-                        <div class="collapse" id="collapseFinance" data-bs-parent="#sidenavAccordion">
+                        <div class="collapse @(inFinance ? "show" : "")" id="collapseFinance">
                             <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link"
-                                   asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Index">
-                                    Hóa đơn học phí
-                                </a>
+                                <a class="nav-link @active("FeeInvoices", "Index")" href="@Url.Action("Index", "FeeInvoices", new { area = "Dashboard" })">Hóa đơn học phí</a>
                             </nav>
                         </div>
 
-                        <a class="nav-link"
-                           asp-area="Dashboard" asp-controller="Announcements" asp-action="Index">
+                        <a class="nav-link @active("Announcements", "Index")" href="@Url.Action("Index", "Announcements", new { area = "Dashboard" })">
                             <div class="sb-nav-link-icon"><i class="fas fa-bullhorn"></i></div>
                             Thông báo
                         </a>
 
-                        <a class="nav-link"
-                           asp-area="Dashboard" asp-controller="Users" asp-action="Index">
+                        <a class="nav-link @active("Users", "Index")" href="@Url.Action("Index", "Users", new { area = "Dashboard" })">
                             <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
                             Người dùng
                         </a>
 
-                        <div class="sb-sidenav-menu-heading">Addons</div>
-                        <a class="nav-link" asp-area="Dashboard" asp-controller="Home" asp-action="Index">
-                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                            Charts (demo)
-                        </a>
-                        <a class="nav-link" asp-area="Dashboard" asp-controller="Home" asp-action="Index">
-                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                            Tables (demo)
+                        <a class="nav-link" asp-area="Dashboard" asp-controller="ContactMessages" asp-action="Index">
+                            <div class="sb-nav-link-icon"><i class="fas fa-envelope-open-text"></i></div>
+                            Liên hệ
                         </a>
                     </div>
                 </div>
-
                 <div class="sb-sidenav-footer">
                     <div class="small">Đăng nhập bởi:</div>
-                    @user?.FullName ?? User?.Identity?.Name ?? "Guest"
+                    @displayName
                 </div>
             </nav>
         </div>
@@ -171,9 +200,7 @@
             <main>
                 <div class="container-fluid px-4">
                     <h1 class="mt-4">@title</h1>
-
                     @RenderSection("Breadcrumb", required: false)
-
                     @RenderBody()
                 </div>
             </main>
@@ -193,20 +220,17 @@
         </div>
     </div>
 
-    <!-- Vendor scripts -->
+    <!-- Scripts: jQuery trước validate; chỉ 1 bản bootstrap bundle -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+    <!-- Validation (nếu cần) -->
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 
     <!-- SB Admin core -->
     <script src="~/Dashboard/js/scripts.js" asp-append-version="true"></script>
-
-    <!-- Charts (demo) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-    <script src="~/Dashboard/assets/demo/chart-area-demo.js" asp-append-version="true"></script>
-    <script src="~/Dashboard/assets/demo/chart-bar-demo.js" asp-append-version="true"></script>
-
-    <!-- Tables -->
-    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
-    <script src="~/Dashboard/js/datatables-simple-demo.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

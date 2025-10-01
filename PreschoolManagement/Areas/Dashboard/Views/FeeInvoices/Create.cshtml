@@ -1,9 +1,8 @@
 ﻿@model PreschoolManagement.Models.FeeInvoice
-@using Microsoft.AspNetCore.Mvc.Rendering
 @{
     ViewData["Title"] = "Tạo hóa đơn";
-    var students = (SelectList)ViewBag.Students;
-    string monthStr = new DateTime(Model.Month.Year, Model.Month.Month, 1).ToString("yyyy-MM");
+    var parents = (SelectList)ViewBag.Parents;
+    // ViewBag.StudentOpts: List<dynamic> { Id, ParentId, Text }
 }
 
 @section Breadcrumb {
@@ -19,37 +18,55 @@
         <form asp-action="Create" method="post" class="row g-3">
             @Html.AntiForgeryToken()
 
-            <div class="col-md-6">
+            <!-- Học sinh -->
+            <div class="col-12">
                 <label class="form-label">Học sinh</label>
-                <select asp-for="StudentId" class="form-select" asp-items="students">
+                <select asp-for="StudentId" class="form-select" id="StudentId">
                     <option value="">-- Chọn học sinh --</option>
+                    @foreach (var s in (IEnumerable<dynamic>)ViewBag.StudentOpts)
+                    {
+                        <option value="@s.Id" data-parent="@s.ParentId">@s.Text</option>
+                    }
                 </select>
                 <span asp-validation-for="StudentId" class="text-danger"></span>
             </div>
 
-            <div class="col-md-3">
-                <label class="form-label">Tháng</label>
-                <input type="month" class="form-control" name="Month" value="@monthStr" />
+            <!-- Phụ huynh -->
+            <div class="col-12">
+                <label class="form-label">Phụ huynh</label>
+                <select asp-for="ParentId" class="form-select" id="ParentId" asp-items="parents">
+                    <option value="">-- Chọn phụ huynh (tự điền theo học sinh) --</option>
+                </select>
+                <span asp-validation-for="ParentId" class="text-danger"></span>
+                <div class="form-text">Khi chọn học sinh, hệ thống sẽ tự chọn phụ huynh nếu có liên kết.</div>
             </div>
 
-            <div class="col-md-3">
+            <!-- Tháng -->
+            <div class="col-md-4">
+                <label class="form-label">Tháng</label>
+                <input asp-for="Month" type="month" class="form-control" />
+            </div>
+
+            <!-- Trạng thái -->
+            <div class="col-md-4">
                 <label class="form-label">Trạng thái</label>
                 <select asp-for="Status" class="form-select">
-                    <option value="Pending">Pending</option>
-                    <option value="Paid">Paid</option>
-                    <option value="Overdue">Overdue</option>
+                    <option>Pending</option>
+                    <option>Paid</option>
+                    <option>Overdue</option>
                 </select>
             </div>
 
-            <div class="col-md-3">
+            <!-- Amount / Paid -->
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
                 <label class="form-label">Số tiền</label>
-                <input asp-for="Amount" class="form-control" type="number" step="1000" min="0" />
+                <input asp-for="Amount" class="form-control" type="number" min="0" step="1000" />
                 <span asp-validation-for="Amount" class="text-danger"></span>
             </div>
-
-            <div class="col-md-3">
-                <label class="form-label">Đã trả</label>
-                <input asp-for="Paid" class="form-control" type="number" step="1000" min="0" />
+            <div class="col-md-4">
+                <label class="form-label">Đã thu</label>
+                <input asp-for="Paid" class="form-control" type="number" min="0" step="1000" />
                 <span asp-validation-for="Paid" class="text-danger"></span>
             </div>
 
@@ -63,4 +80,18 @@
 
 @section Scripts {
     <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
+    <script>
+        (function () {
+            const selStudent = document.getElementById('StudentId');
+            const selParent  = document.getElementById('ParentId');
+
+            if (selStudent && selParent) {
+                selStudent.addEventListener('change', function () {
+                    const opt = this.options[this.selectedIndex];
+                    const pid = opt ? opt.getAttribute('data-parent') : '';
+                    if (pid) selParent.value = pid; // auto-chọn phụ huynh gắn với học sinh
+                });
+            }
+        })();
+    </script>
 }

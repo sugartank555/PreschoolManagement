@@ -1,73 +1,93 @@
 ﻿@model IEnumerable<PreschoolManagement.Models.FeeInvoice>
-@using Microsoft.AspNetCore.Mvc.Rendering
 @{
-    var students = (SelectList)ViewBag.Students;
-    string status = ViewBag.Status as string ?? "";
-    ViewData["Title"] = "Hóa đơn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Hóa đơn của con em";
+    var status = ViewBag.Status as string;
 }
-<div class="card mb-3">
-    <div class="card-body">
-        <form method="get" class="row g-2">
-            <div class="col-md-5">
-                <select name="studentId" class="form-select" asp-items="students">
-                    <option value="">-- Tất cả học sinh --</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select name="status" class="form-select">
-                    <option value="" selected="@(string.IsNullOrEmpty(status))">-- Tất cả --</option>
-                    <option value="Pending" selected="@(status == "Pending")">Pending</option>
-                    <option value="Paid" selected="@(status == "Paid")">Paid</option>
-                    <option value="Overdue" selected="@(status == "Overdue")">Overdue</option>
-                </select>
-            </div>
-            <div class="col-md-2"><button class="btn btn-primary w-100">Lọc</button></div>
-        </form>
-    </div>
-</div>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">Không có hóa đơn.</div>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table table-striped align-middle">
-            <thead class="table-light">
-                <tr><th>Tháng</th><th>Học sinh</th><th>Lớp</th><th class="text-end">Số tiền</th><th class="text-end">Đã trả</th><th>Trạng thái</th><th class="text-end"></th></tr>
-            </thead>
-            <tbody>
-                @foreach (var f in Model)
-                {
+<section class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Hóa đơn của con em</h2>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label mb-0">Chọn bé</label>
+                    <select name="studentId" class="form-select" asp-items="ViewBag.Students">
+                        <option value="">-- Tất cả --</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label mb-0">Trạng thái</label>
+                    <select name="status" class="form-select">
+                        <option value="" selected="@(string.IsNullOrEmpty(status))">-- Tất cả --</option>
+                        <option value="Unpaid" selected="@(status == "Unpaid")">Chưa thanh toán</option>
+                        <option value="Paid" selected="@(status == "Paid")">Đã thanh toán</option>
+                    </select>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-primary">
+                        <i class="fa fa-filter me-1"></i>Lọc
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
                     <tr>
-                        <td>@f.Month.ToLocalTime().ToString("MM/yyyy")</td>
-                        <td>@f.Student?.FullName</td>
-                        <td>@f.Student?.ClassRoom?.Name</td>
-                        <td class="text-end">@f.Amount.ToString("n0")</td>
-                        <td class="text-end">@f.Paid.ToString("n0")</td>
-                        <td>
-                            @if (f.Status == "Paid")
-                            {
-                                <span class="badge bg-success">Paid</span>
-                            }
-                            else if (f.Status == "Overdue")
-                            {
-
-                                <span class="badge bg-danger">Overdue</span>
-                            }
-                            else
-                            {
-
-                                <span class="badge bg-secondary">Pending</span>
-                            }
-                        </td>
-                        <td class="text-end">
-                            <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@f.Id">Xem</a>
-                        </td>
+                        <th style="width:120px">Tháng</th>
+                        <th>Bé</th>
+                        <th>Lớp</th>
+                        <th class="text-end" style="width:160px">Số tiền</th>
+                        <th style="width:140px">Trạng thái</th>
+                        <th style="width:140px">Ngày tạo</th>
+                        <th style="width:110px"></th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">Chưa có hóa đơn hiển thị.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var f in Model)
+                        {
+                            <tr>
+                                <td>@f.Month</td>
+                                <td>@f.Student?.FullName</td>
+                                <td>@f.Student?.ClassRoom?.Name</td>
+                                <td class="text-end">@f.Amount.ToString("N0") đ</td>
+                                <td>
+                                    @if (string.Equals(f.Status, "Paid", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <span class="badge bg-success">Đã thanh toán</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">Chưa thanh toán</span>
+                                    }
+                                </td>
+                                <td>@f.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       asp-controller="ParentInvoices" asp-action="Details" asp-route-id="@f.Id">
+                                        Xem
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-}
+</section>

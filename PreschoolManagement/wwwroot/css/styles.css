@@ -10,6 +10,17 @@
  * Copyright 2011-2022 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
+.nav .nav-link {
+    display: inline-block;
+    line-height: 1.5;
+    padding: 6px 16px; /* đồng bộ spacing */
+    transition: all .2s;
+}
+
+    .nav .nav-link:hover {
+        background: rgba(255,255,255,.15);
+    }
+
 :root {
   --bs-blue: #0d6efd;
   --bs-indigo: #6610f2;

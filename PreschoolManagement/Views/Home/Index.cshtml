@@ -1,45 +1,204 @@
-﻿@using PreschoolManagement.Models
+﻿@model PreschoolManagement.ViewModels.Home.HomeIndexVM
 @{
-    var latest = ViewBag.LatestAnnouncements as IEnumerable<Announcement> ?? Enumerable.Empty<Announcement>();
-    ViewData["Title"] = "Trang chính";
+    ViewData["Title"] = "Trang chủ";
+    Layout = "~/Views/Shared/_Layout.cshtml";  // layout public bạn đã gửi
 }
-<div class="row g-3">
-    <div class="col-lg-8">
-        <div class="p-4 bg-light rounded border mb-3">
-            <h4>Chào mừng tới Cổng thông tin</h4>
-            <p>Xem thông báo, thời khóa biểu, thông tin con em và hóa đơn học phí.</p>
-        </div>
-        <div class="card">
-            <div class="card-header">Thông báo mới</div>
-            <div class="card-body p-0">
-                @if (!latest.Any())
-                {
-                    <div class="p-3 text-muted">Chưa có thông báo.</div>
-                }
-                else
-                {
-                    <div class="list-group list-group-flush">
-                        @foreach (var a in latest)
-                        {
-                            <a class="list-group-item list-group-item-action" asp-controller="Announcements" asp-action="Details" asp-route-id="@a.Id">
-                                <div class="d-flex justify-content-between">
-                                    <strong class="text-truncate">@a.Title</strong>
-                                    <small class="text-muted">@a.PublishedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
-                                </div>
-                                <div class="small text-muted">Đối tượng: @a.Audience</div>
-                            </a>
-                        }
-                    </div>
-                }
+
+@section Styles {
+    <style>
+        .hero {
+            padding: 100px 0 80px;
+            background: linear-gradient(135deg, rgba(79,172,254,.15), rgba(0,242,254,.15));
+            border-radius: 1rem;
+        }
+
+            .hero h1 {
+                font-weight: 700;
+            }
+
+        .feature-card {
+            border: 0;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,.06);
+            height: 100%;
+        }
+
+        .section-title {
+            font-weight: 700;
+        }
+
+        .announcement-card, .event-card {
+            border: 0;
+            border-radius: 1rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,.05);
+            height: 100%;
+        }
+
+        .testimonial {
+            border: 0;
+            border-radius: 1rem;
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,.06);
+        }
+
+        .muted {
+            color: #6c757d;
+        }
+    </style>
+}
+
+<div class="hero mt-4">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <h1 class="display-5 mb-3">Ngôi trường hạnh phúc cho bé mỗi ngày</h1>
+                <p class="lead muted mb-4">
+                    Chương trình học cân bằng, đội ngũ tận tâm, môi trường an toàn – giúp trẻ phát triển toàn diện.
+                </p>
+                <div class="d-flex gap-3">
+                    <a class="btn btn-primary btn-lg" asp-controller="Visit" asp-action="Create">
+                        Đăng ký tham quan
+                    </a>
+                    <a class="btn btn-outline-primary btn-lg" asp-controller="Contact" asp-action="Index">
+                        Liên hệ
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <img src="~/image/phong7-1744371888987587539637.jpg" />
             </div>
         </div>
     </div>
-    <div class="col-lg-4">
-        <div class="list-group">
-            <a class="list-group-item list-group-item-action" asp-controller="MyChildren" asp-action="Index">Con em</a>
-            <a class="list-group-item list-group-item-action" asp-controller="Invoices" asp-action="Index">Hóa đơn</a>
-            <a class="list-group-item list-group-item-action" asp-controller="Schedules" asp-action="Index">Thời khóa biểu</a>
-            <a class="list-group-item list-group-item-action" asp-controller="Announcements" asp-action="Index">Thông báo</a>
+</div>
+
+<!-- 4 khối giới thiệu -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="section-title mb-4">Vì sao chọn chúng tôi?</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card p-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Chương trình học</h5>
+                        <p class="card-text muted">Học qua chơi, phát triển kỹ năng ngôn ngữ, toán tư duy, vận động & nghệ thuật.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card p-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Đội ngũ</h5>
+                        <p class="card-text muted">Giáo viên có chuyên môn, yêu trẻ, cập nhật tới phụ huynh mỗi ngày.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card p-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Cơ sở vật chất</h5>
+                        <p class="card-text muted">Lớp học sáng, sân chơi an toàn, đồ dùng đạt chuẩn mầm non.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card p-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Thực đơn & An toàn</h5>
+                        <p class="card-text muted">Thực đơn theo tuần, dinh dưỡng cân bằng, quy trình an toàn & vệ sinh nghiêm ngặt.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Thông báo mới + Sự kiện sắp tới -->
+<section class="pb-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <h2 class="section-title mb-3">Thông báo mới</h2>
+                <div class="row row-cols-1 g-3">
+                    @if (Model.LatestAnnouncements == null || !Model.LatestAnnouncements.Any())
+                    {
+                        <div class="col">
+                            <div class="alert alert-light border">Chưa có thông báo.</div>
+                        </div>
+                    }
+                    else
+                    {
+                        foreach (var a in Model.LatestAnnouncements)
+                        {
+                            <div class="col">
+                                <div class="card announcement-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-2">@a.Title</h5>
+                                        <div class="small text-muted mb-2">@a.PublishedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                                        <p class="card-text">@a.Excerpt</p>
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           asp-controller="Announcements" asp-action="Details" asp-route-id="@a.Id">
+                                            Xem chi tiết
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <h2 class="section-title mb-3">Sự kiện sắp tới</h2>
+                <div class="row row-cols-1 g-3">
+                    @if (Model.UpcomingEvents == null || !Model.UpcomingEvents.Any())
+                    {
+                        <div class="col">
+                            <div class="alert alert-light border">Chưa có sự kiện.</div>
+                        </div>
+                    }
+                    else
+                    {
+                        foreach (var e in Model.UpcomingEvents)
+                        {
+                            <div class="col">
+                                <div class="card event-card">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-2">@e.Title</h5>
+                                        <div class="small text-muted mb-2">
+                                            Thời gian: @e.PublishedAt.ToString("dd/MM/yyyy HH:mm")
+                                        </div>
+                                        <p class="card-text">@e.Excerpt</p>
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           asp-controller="Announcements" asp-action="Details" asp-route-id="@e.Id">
+                                            Chi tiết
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonial -->
+<section class="pb-5">
+    <div class="container">
+        <h2 class="section-title mb-4">Phụ huynh nói gì?</h2>
+        <div class="row g-4">
+            @foreach (var t in Model.Testimonials)
+            {
+                <div class="col-md-4">
+                    <div class="card testimonial h-100 p-3">
+                        <div class="card-body">
+                            <p class="mb-3">“@t.Content”</p>
+                            <div class="small text-muted">— @t.ParentName@(string.IsNullOrEmpty(t.ChildName) ? "" : $" (bé {t.ChildName})")</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PreschoolManagement.Models
 {
@@ -22,9 +23,14 @@ namespace PreschoolManagement.Models
         public string Gender { get; set; } = "N/A";
         public int? ClassRoomId { get; set; }
         public ClassRoom? ClassRoom { get; set; }
+
         public string? ParentId { get; set; } // ApplicationUser (Phụ huynh)
+        [ForeignKey(nameof(ParentId))]
         public ApplicationUser? Parent { get; set; }
         public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
+        public ICollection<FeeInvoice> FeeInvoices { get; set; } = new List<FeeInvoice>();
+
+
     }
 
     public class Attendance // Điểm danh
@@ -37,21 +43,30 @@ namespace PreschoolManagement.Models
         public string? Note { get; set; }
     }
 
-    public class FeeInvoice // Hóa đơn học phí
+    public class FeeInvoice
     {
         public int Id { get; set; }
+
+        [Required]   // chỉ bắt buộc ID
         public int StudentId { get; set; }
-        public Student Student { get; set; } = default!;
-        public DateTime Month { get; set; } // 2025-09-01 -> Tháng 9/2025
+
+        public Student? Student { get; set; }   // Cho phép null, để tránh bắt buộc khi bind form
+
+        [DataType(DataType.Date)]
+        public DateTime Month { get; set; }
+
         [Range(0, double.MaxValue)]
         public decimal Amount { get; set; }
+
         [Range(0, double.MaxValue)]
         public decimal Paid { get; set; }
 
-        public string Status { get; set; } = "Pending"; // Pending/Paid/Overdue
+        public string Status { get; set; } = "Pending";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
+        public string? ParentId { get; set; }
+        public ApplicationUser? Parent { get; set; }
     }
+
 
     public class Announcement // Thông báo
     {

@@ -2,11 +2,10 @@
 @{
     ViewData["Title"] = "Chi tiết hóa đơn";
 }
-
 @section Breadcrumb {
     <ol class="breadcrumb mb-3">
         <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
-        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Index">Hóa đơn học phí</a></li>
+        <li class="breadcrumb-item"><a asp-action="Index">Hóa đơn học phí</a></li>
         <li class="breadcrumb-item active">Chi tiết</li>
     </ol>
 }
@@ -15,13 +14,13 @@
     <div class="card-body">
         <dl class="row">
             <dt class="col-sm-3">Học sinh</dt>
-            <dd class="col-sm-9">@Model.Student?.FullName</dd>
+            <dd class="col-sm-9">@Model.Student?.FullName (@Model.Student?.ClassRoom?.Name)</dd>
 
-            <dt class="col-sm-3">Lớp</dt>
-            <dd class="col-sm-9">@Model.Student?.ClassRoom?.Name</dd>
+            <dt class="col-sm-3">Phụ huynh</dt>
+            <dd class="col-sm-9">@Model.Parent?.FullName</dd>
 
             <dt class="col-sm-3">Tháng</dt>
-            <dd class="col-sm-9">@Model.Month.ToLocalTime().ToString("MM/yyyy")</dd>
+            <dd class="col-sm-9">@Model.Month.ToString("MM/yyyy")</dd>
 
             <dt class="col-sm-3">Số tiền</dt>
             <dd class="col-sm-9">@Model.Amount.ToString("n0")</dd>
@@ -30,31 +29,15 @@
             <dd class="col-sm-9">@Model.Paid.ToString("n0")</dd>
 
             <dt class="col-sm-3">Trạng thái</dt>
-            <dd class="col-sm-9">
-                @if (Model.Status == "Paid")
-                {
-                    <span class="badge bg-success">Paid</span>
-                }
-                else if (Model.Status == "Overdue")
-                {
-                    <span class="badge bg-danger">Overdue</span>
-                }
-                else
-                {
-                    <span class="badge bg-secondary">Pending</span>
-                }
-            </dd>
+            <dd class="col-sm-9">@Model.Status</dd>
 
-            <dt class="col-sm-3">Ngày tạo</dt>
+            <dt class="col-sm-3">Tạo lúc</dt>
             <dd class="col-sm-9">@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
         </dl>
 
-        <div class="d-flex gap-2">
-            <form asp-action="MarkPaid" asp-route-id="@Model.Id" method="post" class="d-inline">
-                <button class="btn btn-success" type="submit" disabled="@(Model.Status == "Paid")">Đánh dấu đã thu</button>
-            </form>
-            <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@Model.Id">Sửa</a>
-            <a class="btn btn-outline-secondary" asp-action="Index">Quay lại</a>
+        <div class="mt-3">
+            <a class="btn btn-secondary" asp-action="Index">Quay lại</a>
+            <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id">Sửa</a>
         </div>
     </div>
 </div>

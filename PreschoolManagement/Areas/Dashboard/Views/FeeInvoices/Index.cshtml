@@ -1,9 +1,17 @@
 ﻿@model IEnumerable<PreschoolManagement.Models.FeeInvoice>
 @using Microsoft.AspNetCore.Mvc.Rendering
+
+
 @{
     ViewData["Title"] = "Hóa đơn học phí";
+
     var students = (SelectList)ViewBag.Students;
+    int page = ViewBag.Page ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int? studentId = ViewBag.StudentId as int?;
     string status = ViewBag.Status as string ?? "";
+    int totalCount = ViewBag.TotalCount ?? 0;
 }
 
 @section Breadcrumb {
@@ -13,83 +21,126 @@
     </ol>
 }
 
-<div class="card mb-3">
+<div class="card">
     <div class="card-body">
-        <form method="get" class="row g-2">
-            <div class="col-md-5">
-                <select name="studentId" class="form-select" asp-items="students">
-                    <option value="">-- Tất cả học sinh --</option>
-                </select>
-            </div>
+
+        <!-- Bộ lọc -->
+        <form class="row g-2 mb-3" method="get" asp-action="Index" asp-controller="FeeInvoices" asp-area="Dashboard">
             <div class="col-md-3">
-                <select name="status" class="form-select">
-                    <option value="" selected="@(string.IsNullOrEmpty(status))">-- Tất cả trạng thái --</option>
-                    <option value="Pending" selected="@(status == "Pending")">Pending</option>
-                    <option value="Paid" selected="@(status == "Paid")">Paid</option>
-                    <option value="Overdue" selected="@(status == "Overdue")">Overdue</option>
+                <label class="form-label">Học sinh</label>
+                <select class="form-select" name="studentId" asp-items="students">
+                    <option value="">-- Tất cả --</option>
                 </select>
             </div>
-            <div class="col-md-2"><button class="btn btn-primary w-100">Lọc</button></div>
-            <div class="col-md-2 text-end"><a class="btn btn-success w-100" asp-action="Create">+ Tạo hóa đơn</a></div>
+            <div class="col-md-2">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-select" name="status">
+                    <option value="" selected="@(string.IsNullOrEmpty(status))">-- Tất cả --</option>
+                    <option value="Pending" selected="@(status=="Pending")">Pending</option>
+                    <option value="Paid" selected="@(status=="Paid")">Paid</option>
+                    <option value="Overdue" selected="@(status=="Overdue")">Overdue</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Số bản ghi / trang</label>
+                <input type="number" name="pageSize" value="@pageSize" min="1" max="100" class="form-control" />
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button class="btn btn-primary me-2">Lọc</button>
+                <a class="btn btn-secondary" asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Index">Bỏ lọc</a>
+            </div>
         </form>
+
+        <!-- Bảng danh sách -->
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">Không có hóa đơn nào.</div>
+        }
+        else
+        {
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Tháng</th>
+                        <th>Học sinh</th>
+                        <th>Lớp</th>
+                        <th>Phụ huynh</th>
+                        <th class="text-end">Số tiền</th>
+                        <th class="text-end">Đã thu</th>
+                        <th>Trạng thái</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var f in Model)
+                    {
+                        var badge = f.Status switch
+                        {
+                            "Paid" => "badge bg-success",
+                            "Overdue" => "badge bg-danger",
+                            _ => "badge bg-warning text-dark"
+                        };
+
+                        <tr>
+                            <td>@f.Month.ToString("MM/yyyy")</td>
+                            <td>@f.Student?.FullName</td>
+                            <td>@f.Student?.ClassRoom?.Name</td>
+                            <td>@f.Parent?.FullName ?? f.Parent?.Email</td>
+                            <td class="text-end">@f.Amount.ToString("n0")</td>
+                            <td class="text-end">@f.Paid.ToString("n0")</td>
+                            <td><span class="@badge">@f.Status</span></td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Details" asp-route-id="@f.Id">Xem</a>
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Edit" asp-route-id="@f.Id">Sửa</a>
+                                <a class="btn btn-sm btn-outline-danger"
+                                   asp-area="Dashboard" asp-controller="FeeInvoices" asp-action="Delete" asp-route-id="@f.Id">Xóa</a>
+                                @if (f.Status != "Paid")
+                                {
+                                    <form method="post" asp-area="Dashboard" asp-controller="FeeInvoices"
+                                          asp-action="MarkPaid" asp-route-id="@f.Id" class="d-inline">
+                                        <button class="btn btn-sm btn-success">Đã trả</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- Phân trang -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(page <= 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-route-studentId="@studentId"
+                           asp-route-status="@status"
+                           asp-route-page="@(page-1)"
+                           asp-route-pageSize="@pageSize">«</a>
+                    </li>
+
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == page ? "active" : "")">
+                            <a class="page-link"
+                               asp-route-studentId="@studentId"
+                               asp-route-status="@status"
+                               asp-route-page="@i"
+                               asp-route-pageSize="@pageSize">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(page >= totalPages ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-route-studentId="@studentId"
+                           asp-route-status="@status"
+                           asp-route-page="@(page+1)"
+                           asp-route-pageSize="@pageSize">»</a>
+                    </li>
+                </ul>
+                <p class="text-center text-muted small">Trang @@page / @totalPages — Tổng @totalCount bản ghi</p>
+            </nav>
+        }
     </div>
 </div>
-
-@if (!Model.Any())
-{
-    <div class="alert alert-info">Chưa có hóa đơn.</div>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table table-striped align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Tháng</th>
-                    <th>Học sinh</th>
-                    <th>Lớp</th>
-                    <th class="text-end">Số tiền</th>
-                    <th class="text-end">Đã trả</th>
-                    <th>Trạng thái</th>
-                    <th class="text-end"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var f in Model)
-                {
-                    <tr>
-                        <td>@f.Month.ToLocalTime().ToString("MM/yyyy")</td>
-                        <td>@f.Student?.FullName</td>
-                        <td>@f.Student?.ClassRoom?.Name</td>
-                        <td class="text-end">@f.Amount.ToString("n0")</td>
-                        <td class="text-end">@f.Paid.ToString("n0")</td>
-                        <td>
-                            @if (f.Status == "Paid")
-                            {
-                                <span class="badge bg-success">Paid</span>
-                            }
-                            else if (f.Status == "Overdue")
-                            {
-                                <span class="badge bg-danger">Overdue</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">Pending</span>
-                            }
-                        </td>
-                        <td class="text-end">
-                            <div class="btn-group">
-                                <form asp-action="MarkPaid" asp-route-id="@f.Id" method="post" class="d-inline">
-                                    <button class="btn btn-sm btn-outline-success" type="submit" disabled="@(f.Status == "Paid")">Đánh dấu đã thu</button>
-                                </form>
-                                <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@f.Id">Xem</a>
-                                <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@f.Id">Sửa</a>
-                                <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@f.Id">Xóa</a>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}

@@ -54,22 +54,11 @@
                             <h1>Scholar</h1>
                         </a>
                         <!-- ***** Logo End ***** -->
-                        <!-- ***** Search Start ***** -->
-                        <div class="search-input">
-                            <form id="search" action="#" method="get">
-                                <input type="text"
-                                       placeholder="Type Something"
-                                       id="searchText"
-                                       name="searchKeyword"
-                                       onkeypress="handle" />
-                                <i class="fa fa-search"></i>
-                            </form>
-                        </div>
                         <!-- ***** Search End ***** -->
                         @{
                             string c = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
                         }
-                        <ul class="nav align-items-center">
+                        <ul class="nav align-items-center ms-auto">
                             <li class="nav-item">
                                 <a asp-area="" asp-controller="Home" asp-action="Index"
                                    class="nav-link @(c == "home" ? "active fw-bold" : "")">Trang chủ</a>
@@ -91,12 +80,13 @@
                                    class="nav-link @(c == "invoices" ? "active fw-bold" : "")">Hóa đơn</a>
                             </li>
 
-                            @* Hiện Dashboard nếu là Admin/Staff *@
                             @if (User.IsInRole("Admin") || User.IsInRole("Staff"))
                             {
                                 <li class="nav-item ms-2">
                                     <a asp-area="Dashboard" asp-controller="Home" asp-action="Index"
-                                       class="btn btn-sm btn-warning text-dark">Dashboard</a>
+                                       class="nav-link px-3 rounded-pill bg-warning text-dark fw-semibold">
+                                        Dashboard
+                                    </a>
                                 </li>
                             }
 
@@ -104,20 +94,12 @@
                             {
                                 <li class="nav-item ms-2">
                                     <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="~/" method="post" class="d-inline">
-                                        <button class="btn btn-sm btn-outline-light">Đăng xuất</button>
+                                        <button class="nav-link px-3 rounded-pill border border-light text-white bg-transparent">
+                                            Đăng xuất
+                                        </button>
                                     </form>
                                 </li>
                             }
-                            else
-                            {
-                                <li class="nav-item">
-                                    <a asp-area="Identity" asp-page="/Account/Login" class="nav-link">Đăng nhập</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a asp-area="Identity" asp-page="/Account/Register" class="nav-link">Đăng ký</a>
-                                </li>
-                            }
-                        </ul>
 
                         <a class="menu-trigger">
                             <span>Menu</span>

@@ -1,9 +1,7 @@
-﻿@model IEnumerable<PreschoolManagement.Models.Student>
-@using Microsoft.AspNetCore.Mvc.Rendering
+﻿@model PreschoolManagement.Areas.Dashboard.Controllers.StudentsController.StudentsIndexVm
 @{
     ViewData["Title"] = "Học sinh";
-    var classes = (SelectList)ViewBag.Classes;
-    string keyword = ViewBag.Keyword as string ?? "";
+    var canWrite = User.IsInRole("Admin") || User.IsInRole("Staff");
 }
 
 @section Breadcrumb {
@@ -15,26 +13,44 @@
 
 <div class="card mb-3">
     <div class="card-body">
-        <form method="get" class="row g-2">
-            <div class="col-md-6">
-                <input name="q" value="@keyword" class="form-control" placeholder="Tìm theo tên hoặc mã..." />
-            </div>
-            <div class="col-md-4">
-                <select name="classId" class="form-select" asp-items="classes">
-                    <option value="">-- Tất cả lớp --</option>
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Lớp</label>
+                <select name="classId" class="form-select" asp-items="(SelectList)ViewBag.ClassRooms">
+                    <option value="">(Tất cả)</option>
                 </select>
             </div>
-            <div class="col-md-2 d-flex gap-2">
-                <button class="btn btn-primary w-100" type="submit">Lọc</button>
-                <a class="btn btn-success w-100" asp-action="Create">+ Thêm</a>
+
+            <div class="col-md-4">
+                <label class="form-label">Từ khóa</label>
+                <input type="text" name="keyword" value="@Model.Keyword" class="form-control" placeholder="Họ tên / Mã học sinh..." />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Kích thước trang</label>
+                <select name="pageSize" class="form-select">
+                    <option value="5" selected="@(Model.PageSize == 5)">5</option>
+                    <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                    <option value="20" selected="@(Model.PageSize == 20)">20</option>
+                    <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                </select>
+            </div>
+
+            <div class="col-md-3 d-flex gap-2">
+                <button class="btn btn-primary" type="submit">Lọc</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Xóa lọc</a>
+                @if (canWrite)
+                {
+                    <a asp-action="Create" class="btn btn-success ms-auto">+ Thêm học sinh</a>
+                }
             </div>
         </form>
     </div>
 </div>
 
-@if (!Model.Any())
+@if (Model.Items.Count == 0)
 {
-    <div class="alert alert-info">Chưa có học sinh nào.</div>
+    <div class="alert alert-info">Không có bản ghi phù hợp.</div>
 }
 else
 {
@@ -45,13 +61,14 @@ else
                     <th style="width:120px">Mã</th>
                     <th>Họ tên</th>
                     <th style="width:140px">Ngày sinh</th>
-                    <th style="width:100px">Giới tính</th>
+                    <th style="width:120px">Giới tính</th>
                     <th>Lớp</th>
-                    <th class="text-end" style="width:220px"></th>
+                    <th>Phụ huynh</th>
+                    <th style="width:180px"></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var s in Model)
+                @foreach (var s in Model.Items)
                 {
                     <tr>
                         <td>@s.Code</td>
@@ -59,14 +76,61 @@ else
                         <td>@s.BirthDate.ToString("dd/MM/yyyy")</td>
                         <td>@s.Gender</td>
                         <td>@s.ClassRoom?.Name</td>
+                        <td>@(s.Parent?.FullName ?? s.Parent?.UserName ?? s.Parent?.Email)</td>
                         <td class="text-end">
-                            <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@s.Id">Xem</a>
-                            <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@s.Id">Sửa</a>
-                            <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@s.Id">Xóa</a>
+                            <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm btn-outline-secondary">Xem</a>
+                            @if (canWrite)
+                            {
+                                <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-primary">Sửa</a>
+                                <a asp-action="Delete" asp-route-id="@s.Id" class="btn btn-sm btn-danger">Xóa</a>
+                            }
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
+    </div>
+
+    <!-- Pager -->
+    <nav aria-label="Students pagination">
+        <ul class="pagination">
+            @{
+                var prevDisabled = Model.Page <= 1 ? "disabled" : "";
+                var nextDisabled = Model.Page >= Model.TotalPages ? "disabled" : "";
+            }
+            <li class="page-item @prevDisabled">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-classId="@Model.ClassId"
+                   asp-route-keyword="@Model.Keyword"
+                   asp-route-page="@(Model.Page - 1)"
+                   asp-route-pageSize="@Model.PageSize">«</a>
+            </li>
+
+            @for (int p = 1; p <= Model.TotalPages; p++)
+            {
+                <li class="page-item @(p == Model.Page ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-classId="@Model.ClassId"
+                       asp-route-keyword="@Model.Keyword"
+                       asp-route-page="@p"
+                       asp-route-pageSize="@Model.PageSize">@p</a>
+                </li>
+            }
+
+            <li class="page-item @nextDisabled">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-classId="@Model.ClassId"
+                   asp-route-keyword="@Model.Keyword"
+                   asp-route-page="@(Model.Page + 1)"
+                   asp-route-pageSize="@Model.PageSize">»</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="text-muted small">
+        Trang @Model.Page / @Model.TotalPages — Tổng @Model.TotalItems bản ghi
     </div>
 }

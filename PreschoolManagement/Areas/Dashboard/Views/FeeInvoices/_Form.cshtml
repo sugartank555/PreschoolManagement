@@ -1,0 +1,55 @@
+﻿@model PreschoolManagement.Models.FeeInvoice
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    var students = (SelectList)ViewBag.Students;
+    var isEdit = Model.Id > 0;
+    var monthStr = new DateTime(Model.Month.Year, Model.Month.Month, 1).ToString("yyyy-MM");
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+@if (isEdit)
+{
+    @Html.HiddenFor(m => m.Id)
+}
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label class="form-label">Học sinh</label>
+        <select asp-for="StudentId" class="form-select" asp-items="students">
+            <option value="">-- Chọn học sinh --</option>
+        </select>
+        <span asp-validation-for="StudentId" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Tháng</label>
+        <input type="month" class="form-control" name="Month" value="@monthStr" />
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Trạng thái</label>
+        <select asp-for="Status" class="form-select">
+            <option value="Pending">Pending</option>
+            <option value="Paid">Paid</option>
+            <option value="Overdue">Overdue</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Số tiền</label>
+        <input asp-for="Amount" type="number" min="0" step="1000" class="form-control" />
+        <span asp-validation-for="Amount" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">Đã thu</label>
+        <input asp-for="Paid" type="number" min="0" step="1000" class="form-control" />
+        <span asp-validation-for="Paid" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="mt-3 d-flex gap-2">
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</div>

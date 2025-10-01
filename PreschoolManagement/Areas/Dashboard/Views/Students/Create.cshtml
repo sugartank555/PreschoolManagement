@@ -1,13 +1,12 @@
 ﻿@model PreschoolManagement.Models.Student
-@using Microsoft.AspNetCore.Mvc.Rendering
 @{
+    Layout = "~/Areas/Dashboard/Views/Shared/_DashboardLayout.cshtml";
     ViewData["Title"] = "Thêm học sinh";
-    var classes = (SelectList)ViewBag.Classes;
 }
 
 @section Breadcrumb {
-    <ol class="breadcrumb mb-3">
-        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Tổng quan</a></li>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Home" asp-action="Index">Dashboard</a></li>
         <li class="breadcrumb-item"><a asp-area="Dashboard" asp-controller="Students" asp-action="Index">Học sinh</a></li>
         <li class="breadcrumb-item active">Thêm</li>
     </ol>
@@ -15,60 +14,17 @@
 
 <div class="card">
     <div class="card-body">
-        <form asp-action="Create" method="post" class="row g-3">
+        <form asp-area="Dashboard" asp-controller="Students" asp-action="Create" method="post">
             @Html.AntiForgeryToken()
-
-            <div class="col-md-4">
-                <label class="form-label">Mã học sinh <span class="text-danger">*</span></label>
-                <input asp-for="Code" class="form-control" />
-                <span asp-validation-for="Code" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-8">
-                <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
-                <input asp-for="FullName" class="form-control" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-4">
-                <label class="form-label">Ngày sinh <span class="text-danger">*</span></label>
-                <input asp-for="BirthDate" type="date" class="form-control" />
-                <span asp-validation-for="BirthDate" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-4">
-                <label class="form-label">Giới tính</label>
-                <select asp-for="Gender" class="form-select">
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                    <option value="Khác">Khác</option>
-                </select>
-                <span asp-validation-for="Gender" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-4">
-                <label class="form-label">Lớp</label>
-                <select asp-for="ClassRoomId" class="form-select" asp-items="classes">
-                    <option value="">-- Chưa xếp lớp --</option>
-                </select>
-                <span asp-validation-for="ClassRoomId" class="text-danger"></span>
-            </div>
-
-            @* Nếu dùng ParentId là ApplicationUser (phụ huynh), có thể thêm trường nhập tại đây *@
-            @* <div class="col-md-6">
-           <label class="form-label">Phụ huynh (UserId)</label>
-           <input asp-for="ParentId" class="form-control" />
-           <span asp-validation-for="ParentId" class="text-danger"></span>
-         </div> *@
-
-            <div class="col-12 d-flex gap-2">
-                <button class="btn btn-primary" type="submit">Lưu</button>
-                <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+            <partial name="_Form" model="Model" />
+            <div class="mt-3">
+                <button class="btn btn-primary">Lưu</button>
+                <a asp-area="Dashboard" asp-controller="Students" asp-action="Index" class="btn btn-outline-secondary ms-2">Hủy</a>
             </div>
         </form>
     </div>
 </div>
 
 @section Scripts {
-    <partial name="~/Views/Shared/_ValidationScriptsPartial.cshtml" />
+    <partial name="_ValidationScriptsPartial" />
 }

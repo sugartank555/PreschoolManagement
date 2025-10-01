@@ -347,6 +347,52 @@ namespace PreschoolManagement.Data.Migrations
                     b.ToTable("ClassRooms");
                 });
 
+            modelBuilder.Entity("PreschoolManagement.Models.ContactMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedById")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<int?>("RelatedStudentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Subject")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("RelatedStudentId");
+
+                    b.ToTable("ContactMessages");
+                });
+
             modelBuilder.Entity("PreschoolManagement.Models.FeeInvoice", b =>
                 {
                     b.Property<int>("Id")
@@ -367,6 +413,9 @@ namespace PreschoolManagement.Data.Migrations
                     b.Property<decimal>("Paid")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("ParentId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -375,6 +424,8 @@ namespace PreschoolManagement.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
 
                     b.HasIndex("StudentId", "Month")
                         .IsUnique();
@@ -421,6 +472,63 @@ namespace PreschoolManagement.Data.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("Students");
+                });
+
+            modelBuilder.Entity("PreschoolManagement.Models.VisitRegistration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ClassRoomId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ParentId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ParentName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("VisitDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VisitSlot")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassRoomId");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("VisitRegistrations");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -515,13 +623,37 @@ namespace PreschoolManagement.Data.Migrations
                     b.Navigation("Teacher");
                 });
 
+            modelBuilder.Entity("PreschoolManagement.Models.ContactMessage", b =>
+                {
+                    b.HasOne("PreschoolManagement.Models.ApplicationUser", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("PreschoolManagement.Models.Student", "RelatedStudent")
+                        .WithMany()
+                        .HasForeignKey("RelatedStudentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("RelatedStudent");
+                });
+
             modelBuilder.Entity("PreschoolManagement.Models.FeeInvoice", b =>
                 {
-                    b.HasOne("PreschoolManagement.Models.Student", "Student")
+                    b.HasOne("PreschoolManagement.Models.ApplicationUser", "Parent")
                         .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("PreschoolManagement.Models.Student", "Student")
+                        .WithMany("FeeInvoices")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Parent");
 
                     b.Navigation("Student");
                 });
@@ -542,6 +674,30 @@ namespace PreschoolManagement.Data.Migrations
                     b.Navigation("Parent");
                 });
 
+            modelBuilder.Entity("PreschoolManagement.Models.VisitRegistration", b =>
+                {
+                    b.HasOne("PreschoolManagement.Models.ClassRoom", "ClassRoom")
+                        .WithMany()
+                        .HasForeignKey("ClassRoomId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("PreschoolManagement.Models.ApplicationUser", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("PreschoolManagement.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("ClassRoom");
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("PreschoolManagement.Models.ClassRoom", b =>
                 {
                     b.Navigation("Students");
@@ -550,6 +706,8 @@ namespace PreschoolManagement.Data.Migrations
             modelBuilder.Entity("PreschoolManagement.Models.Student", b =>
                 {
                     b.Navigation("Attendances");
+
+                    b.Navigation("FeeInvoices");
                 });
 #pragma warning restore 612, 618
         }
