@@ -22,6 +22,17 @@ namespace PreschoolManagement.Data
         {
             base.OnModelCreating(builder);
 
+            // === Đổi tên các bảng Identity (xóa tiền tố AspNet) ===
+            builder.Entity<ApplicationUser>(b => { b.ToTable("Users"); });
+            builder.Entity<Microsoft.AspNetCore.Identity.IdentityRole>(b => { b.ToTable("Roles"); });
+            builder.Entity<Microsoft.AspNetCore.Identity.IdentityUserRole<string>>(b => { b.ToTable("UserRoles"); });
+            builder.Entity<Microsoft.AspNetCore.Identity.IdentityUserClaim<string>>(b => { b.ToTable("UserClaims"); });
+            builder.Entity<Microsoft.AspNetCore.Identity.IdentityUserLogin<string>>(b => { b.ToTable("UserLogins"); });
+            builder.Entity<Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>>(b => { b.ToTable("RoleClaims"); });
+            builder.Entity<Microsoft.AspNetCore.Identity.IdentityUserToken<string>>(b => { b.ToTable("UserTokens"); });
+
+            // === Cấu hình cho các bảng riêng của hệ thống ===
+
             builder.Entity<Student>()
                 .HasIndex(s => s.Code)
                 .IsUnique();
@@ -44,7 +55,7 @@ namespace PreschoolManagement.Data
 
             // ===== FeeInvoice =====
             builder.Entity<FeeInvoice>()
-                .HasIndex(f => new { f.StudentId, f.Month })   // duy nhất Student + Tháng
+                .HasIndex(f => new { f.StudentId, f.Month })
                 .IsUnique();
 
             builder.Entity<FeeInvoice>()
@@ -52,6 +63,13 @@ namespace PreschoolManagement.Data
                 .WithMany(s => s.FeeInvoices)
                 .HasForeignKey(f => f.StudentId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Liên kết Parent
+            builder.Entity<FeeInvoice>()
+                .HasOne(f => f.Parent)
+                .WithMany()
+                .HasForeignKey(f => f.ParentId)
+                .OnDelete(DeleteBehavior.SetNull);
 
             builder.Entity<FeeInvoice>()
                 .Property(f => f.Amount)
@@ -92,34 +110,6 @@ namespace PreschoolManagement.Data
                 .WithMany()
                 .HasForeignKey(c => c.RelatedStudentId)
                 .OnDelete(DeleteBehavior.SetNull);
-            // ===== FeeInvoice =====
-            builder.Entity<FeeInvoice>()
-                .HasIndex(f => new { f.StudentId, f.Month })   // duy nhất Student + Tháng
-                .IsUnique();
-
-            builder.Entity<FeeInvoice>()
-                .HasOne(f => f.Student)
-                .WithMany(s => s.FeeInvoices)
-                .HasForeignKey(f => f.StudentId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // NEW: liên kết Parent
-            builder.Entity<FeeInvoice>()
-                .HasOne(f => f.Parent)
-                .WithMany()   // hoặc .WithMany(u => u.FeeInvoices) nếu bạn khai báo ICollection<FeeInvoice> trong ApplicationUser
-                .HasForeignKey(f => f.ParentId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            builder.Entity<FeeInvoice>()
-                .Property(f => f.Amount)
-                .HasColumnType("decimal(18,2)");
-
-            builder.Entity<FeeInvoice>()
-                .Property(f => f.Paid)
-                .HasColumnType("decimal(18,2)");
-
-
         }
-
     }
 }
